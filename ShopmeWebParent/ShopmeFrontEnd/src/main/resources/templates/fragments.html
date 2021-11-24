@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- fragment for page header -->
+<!-- <head th:fragment="page_head(title)"> -->
+
+<!-- page_head fragment modified with a second parameter -->
+<head th:fragment="page_head(title,remove)" th:remove="${remove}">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!-- for mobile phones responsiveness -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+<!--  append site name from settings -->
+<title>[[${title}]] - [[${SITE_NAME}]]</title>
+
+<link rel="stylesheet" type="text/css" th:href="@{/style.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+
+</head>
+<body>
+	
+	<a th:fragment="page_link(moduleURL,pageNum,label)"
+		class="page-link"
+		th:href="@{${moduleURL} + '/page/' + ${pageNum} + '?sortField=' + 
+		${sortField} + '&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' 
+		+ keyword : ''}}">[[${label}]]
+</a>
+	
+	#####################
+		PRICE AND CURRENCY SYMBOL
+	#####################
+	<div th:fragment="price_fragment(productPrice)" th:remove="tag">
+	
+		<!-- #numbers.formatDecimal(...) is for formatting the decimal-->
+			<span th:if="${CURRENCY_SYMBOL_POSITION == 'Before price'}" th:remove="tag"> [[${CURRENCY_SYMBOL}]]</span>[[${#numbers.formatDecimal(productPrice, 1, THOUSAND_POINT_TYPE, DECIMAL_DIGITS, DECIMAL_POINT_TYPE)}]]<span th:if="${CURRENCY_SYMBOL_POSITION == 'After price'}" th:remove="tag">[[${CURRENCY_SYMBOL}]]</span>
+	</div>
+
+</body>
+</html>

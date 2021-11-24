@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+      <!-- The header has been moved to fragments.html -->
+<!-- <head th:replace="fragments :: page_head('Home - Shopme Admin')"></head> -->
+<head th:replace="fragments :: page_head(${pageTitle }, 'none')"></head>
+<body>
+	<div class="container-fluid">
+		<div th:replace="navigation :: header_menu"></div>
+		
+		<div th:replace="navigation :: search_nav"></div>
+		
+		<div th:replace="breadcrumb :: content"></div>
+		
+		<!-- list product sub-categories -->
+		<div class="row text-center">
+			<th:block th:each="cat : ${category.children}">
+			<!-- show enabled sub categories only -->
+				<div class="col" th:if="${cat.enabled == true}">
+					<a th:href="@{'/c/' + ${cat.alias}}">
+					<img th:src="@{${cat.imagePath}}" height="100" /><br>
+					<b>[[${cat.name}]]</b>
+				</a>
+				</div>
+			</th:block>
+		</div>
+		
+		<div class="row" >&nbsp;</div>
+		
+		<!-- display the products in a row -->
+		<div class="row"> 
+			<th:block th:each="product : ${listProducts}">
+				<div th:replace="product/product_fragment :: content"></div>
+			</th:block>
+		</div>
+		
+		<div th:replace="page_pagination :: pagination('/c/' + ${category.alias}, 'product')"></div>
+		
+		<div th:replace="navigation :: footer_menu"></div>
+	</div>
+	
+	
+</body>
+</html>
