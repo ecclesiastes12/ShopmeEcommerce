@@ -53,5 +53,5 @@ public class EmailSettingBag extends SettingBag {
 	
 	public String getCustomerVerifyContent() {
 		return super.getValue("CUSTOMER_VERIFY_CONTENT");
-	}	
+	}
 }

@@ -234,8 +234,8 @@ function changeFormStateToNewCountry(){
 
 //function to change the state of dropDownCountry
 function changeFormStateToSelectedCountry(){
-	//change the property buttons when country is loaded in the dropDownCountry
-	buttonAddCountry.prop("value", "New"); //set the property button to "New"'
+	
+	buttonAddCountry.prop("value", "New"); 
 	buttonUpdateCountry.prop("disabled", false);
 	buttonDeleteCountry.prop("disabled", false);
 	
@@ -260,8 +260,7 @@ function loadCountries(){
 	//url of the CountryRestController
 	url = contextPath + "countries/list";
 	
-	//ajax call to the server by http request method with a given url.
-	// execute call back function with responseJSONse from the server
+	
 	$.get(url, function(responseJSON){
 		
 		//clear the content of the dropDownCountry
@@ -306,4 +305,9 @@ function loadCountries(){
 		
 		$(".toast").toast("show"); //shows the toast messge
 				
+<<<<<<< HEAD
 	}
+=======
+	}
+}
+>>>>>>> 364d0eee5ac80a42e34ecefd7016af9186714040
