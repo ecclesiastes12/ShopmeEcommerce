@@ -12,13 +12,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.shopme.admin.paging.PagingAndSortingHelper;
 import com.shopme.common.entity.Product;
 import com.shopme.common.exception.ProductNotFoundException;
 
 @Service
 public class ProductService {
 
-	public static final int PRODUCT_PER_PAGE = 5;
+	public static final int PRODUCTS_PER_PAGE = 5;
 	
 	@Autowired
 	ProductRepository repo;
@@ -50,29 +51,79 @@ public class ProductService {
 //	}
 //	
 	
+	//NB check ProductService1 for changes in code
 	//method that list product by page updated with categoryId for search purpose
-	public Page<Product> listByPage(int pageNum, String sortField, String sortDir,
-		String keyword, Integer categoryId){
-		
-		Sort sort = Sort.by(sortField);
-		
-		//sort in ascending or descending order
-		/*
-		 * if(sortDir.equals("asc")) { sort = sort.ascending(); }else { sort =
-		 * sort.descending(); }
-		 */
-		
-		sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
-		
-		Pageable pageable = PageRequest.of(pageNum - 1, PRODUCT_PER_PAGE, sort);
+//	public Page<Product> listByPage(int pageNum, PagingAndSortingHelper helper, Integer categoryId){
 //		
+//		Sort sort = Sort.by(sortField);
+//	
+//		sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
+//		
+//		Pageable pageable = PageRequest.of(pageNum - 1, PRODUCT_PER_PAGE, sort);
+//
 //		//checks if keyword is not empty or not null
 //		if (keyword != null && !keyword.isEmpty()) {
+//			
+//			//checks if categoryId is not null or greater than zero
+//			if(categoryId != null && categoryId > 0) {
+//				//create categoryIdMatch
+//				String categoryMatch = "-" + String.valueOf(categoryId) + "-";
+//				return repo.searchInCategory(categoryId, categoryMatch, keyword,pageable);
+//			}
+//			
 //			return repo.findAll(keyword, pageable); //returns the search results if keyword is not null
 //		}
+//		
+//		
+//		//category search without keyword
+//		//checks if categoryId is not null or greater than zero
+//		if(categoryId != null && categoryId > 0) {
+//			//create categoryIdMatch
+//			String categoryMatch = "-" + String.valueOf(categoryId) + "-";
+//			return repo.findAllInCategory(categoryId, categoryMatch, pageable);
+//		}
+//		
+//		return repo.findAll(pageable);
+//	}
+	
+	//listByPage method return type change to void because helper.updateModelAttributes(pageNum, page);
+	//was moved from ProductController class to ProductService class
+	public void listByPage(int pageNum, PagingAndSortingHelper helper, Integer categoryId){
 		
+		//code moved to createPageable method in PagingAndSortingHelper class
+//		Sort sort = Sort.by(sortField);
+//		sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();	
+//		Pageable pageable = PageRequest.of(pageNum - 1, PRODUCT_PER_PAGE, sort);
+		
+		//method call 
+		//assigned the method to a Pageable variable
+		Pageable pageable = helper.createPageable(PRODUCTS_PER_PAGE, pageNum);
+		
+		String keyword = helper.getKeyword();
+		Page<Product> page = null;
 
-		//category search with keyword
+//		//checks if keyword is not empty or not null
+//		if (keyword != null && !keyword.isEmpty()) {
+//			
+//			//checks if categoryId is not null or greater than zero
+//			if(categoryId != null && categoryId > 0) {
+//				//create categoryIdMatch
+//				String categoryMatch = "-" + String.valueOf(categoryId) + "-";
+//				return repo.searchInCategory(categoryId, categoryMatch, keyword,pageable);
+//			}
+//			
+//			return repo.findAll(keyword, pageable); //returns the search results if keyword is not null
+//		}
+//		
+//		//category search without keyword
+//		//checks if categoryId is not null or greater than zero
+//		if(categoryId != null && categoryId > 0) {
+//			//create categoryIdMatch
+//			String categoryMatch = "-" + String.valueOf(categoryId) + "-";
+//			return repo.findAllInCategory(categoryId, categoryMatch, pageable);
+//		}
+//		return repo.findAll(pageable);
+		
 		//checks if keyword is not empty or not null
 		if (keyword != null && !keyword.isEmpty()) {
 			
@@ -80,23 +131,27 @@ public class ProductService {
 			if(categoryId != null && categoryId > 0) {
 				//create categoryIdMatch
 				String categoryMatch = "-" + String.valueOf(categoryId) + "-";
-				return repo.searchInCategory(categoryId, categoryMatch, keyword,pageable);
+				page = repo.searchInCategory(categoryId, categoryMatch, keyword,pageable);
+			}else {
+				page= repo.findAll(keyword, pageable); //returns the search results if keyword is not null
 			}
-			
-			return repo.findAll(keyword, pageable); //returns the search results if keyword is not null
+		}else {
+		
+			//category search without keyword
+			//checks if categoryId is not null or greater than zero
+			if(categoryId != null && categoryId > 0) {
+				//create categoryIdMatch
+				String categoryMatch = "-" + String.valueOf(categoryId) + "-";
+				page = repo.findAllInCategory(categoryId, categoryMatch, pageable);
+			}else {
+				page = repo.findAll(pageable);
+			}
 		}
-		
-		
-		//category search without keyword
-		//checks if categoryId is not null or greater than zero
-		if(categoryId != null && categoryId > 0) {
-			//create categoryIdMatch
-			String categoryMatch = "-" + String.valueOf(categoryId) + "-";
-			return repo.findAllInCategory(categoryId, categoryMatch, pageable);
-		}
-		
-		return repo.findAll(pageable);
+	
+	//method call
+	helper.updateModelAttributes(pageNum, page);
 	}
+
 	
 	
 	//method that save product

@@ -21,6 +21,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.shopme.admin.FileUploadUtil;
 import com.shopme.admin.category.CategoryService;
+import com.shopme.admin.paging.PagingAndSortingHelper;
+import com.shopme.admin.paging.PagingAndSortingParam;
 import com.shopme.common.entity.Brand;
 import com.shopme.common.entity.Category;
 
@@ -42,13 +44,27 @@ public class BrandController {
 //	}
 //	
 
+//	//listAllBrands change to listFirstPage and modified
+//	@GetMapping("/brands")
+//	public String listAllBrands(Model model) {
+//		
+//		//method call
+//		//sorted in ascending order
+//		return listByPage(1, model, "name", "asc", null); 
+//		
+//	}
+	
+
 	//listAllBrands change to listFirstPage and modified
 	@GetMapping("/brands")
-	public String listAllBrands(Model model) {
+	public String listAllBrands() {
 		
 		//method call
+		//sorted in ascending order
+		//return listByPage(1, model, "name", "asc", null); 
 		
-		return listByPage(1, model, "name", "asc", null); //sorted in ascending order
+		//return string for sort field and direction instead of calling listByPage method 
+		return "redirect:/brands/page/1?sortField=name&sortDir=asc";
 		
 	}
 	
@@ -123,39 +139,17 @@ public class BrandController {
 	//method modified with sort field and sort direction
 	//modified with keyword
 	@GetMapping("/brands/page/{pageNum}")
-	public String listByPage(@PathVariable(name="pageNum") int pageNum, Model model,
-			@Param("sortField") String sortField,
-			@Param("sortDir") String sortDir,
-			@Param("keyword") String keyword) {
+	public String listByPage(
+			@PagingAndSortingParam(listName="listBrands", moduleURL = "/brands") PagingAndSortingHelper helper,
+			@PathVariable(name="pageNum") int pageNum) {
 		
-		Page<Brand> page = service.listByPage(pageNum, sortField, sortDir,keyword);
+		//Page<Brand> page = service.listByPage(pageNum, sortField, sortDir,keyword);
 		
-		List<Brand> ListBrands = page.getContent();
+		//code modified with page object removed and sortField, sortDir and keyword parameters replaced with PagingAndSortingHelper helper 
+		service.listByPage(pageNum, helper);
 		
-		// page counter
-		long startCount = (pageNum - 1) * BrandService.BRANDS_PER_PAGE + 1;
-		long endCount = startCount + BrandService.BRANDS_PER_PAGE - 1;
+		//NB Chech BrandController1 for the previous code.
 		
-		//gets the last page number
-		if(endCount > page.getTotalElements()) {
-			endCount = page.getTotalElements();
-		}
-		
-		//reverse sorting
-		String reverseSortDir = sortDir.equals("asc") ? "desc" : "asc";
-				
-		model.addAttribute("listBrands", ListBrands);
-		
-		model.addAttribute("currentPage", pageNum);
-		model.addAttribute("totalPages", page.getTotalPages());
-		model.addAttribute("totalItems", page.getTotalElements());
-		model.addAttribute("startCount", startCount);
-		model.addAttribute("endCount", endCount);
-		
-		model.addAttribute("sortField", sortField);
-		model.addAttribute("sortDir", sortDir);
-		model.addAttribute("reverseSortDir", reverseSortDir);
-		model.addAttribute("keyword", keyword); //display the keyword 
 		
 		return "brands/brands";
 	}

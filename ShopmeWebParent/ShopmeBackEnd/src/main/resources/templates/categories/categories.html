@@ -17,7 +17,7 @@
 	</div>
 	
 	
-	<div th:replace= "fragments :: search_form_and_message('/categories/page/1')">
+	<div th:replace= "fragments :: search_form_and_message()">
 		
 	</div>
 	
@@ -27,7 +27,11 @@
 		    <tr>
 		      <th>ID</th>
 		      <th>Category Image</th>
-		      <th th:replace="fragments :: column_link('/categories', 'name', 'Category Name', 'none')">
+		     <!--  <th th:replace="fragments :: column_link('/categories', 'name', 'Category Name', 'none')"> -->
+		     
+		     <!-- '/categories' as a parameter in column_link is removed because it's modified fragments.html -->
+		      <th th:replace="fragments :: column_link('name', 'Category Name', 'none')">
+		      
 		      	<!-- <a class="text-white" th:href="@{'/categories/page/' + ${currentPage} + '?sortDir=' + ${reverseSortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}" >Category Name</a>
 		      	<span th:class="${reverseSortDir == 'desc' ? 'fas fa-sort-up' : 'fas fa-sort-down' }"></span> -->	
 		      </th>
@@ -100,11 +104,18 @@
 	
 	<div th:if="${keyword != null}" class="text-center">
 		<span>Search result does not show categories in hierarchical form</span>
-		<div th:replace="page_pagination :: pagination('/categories','categories')"></div>
+		<!-- <div th:replace="page_pagination :: pagination('/categories','categories')"></div> -->
+		
+		<!-- '/categories' as a parameter in column_link is removed because it's modified fragments.html -->
+		<div th:replace="page_pagination :: pagination('categories')"></div>
 	</div>
 	
 	<div th:unless="${keyword != null}">
-		<div th:replace="page_pagination :: pagination('/categories','top-level categories')"></div>
+	
+		<!-- <div th:replace="page_pagination :: pagination('/categories','top-level categories')"></div> -->
+	
+	<!-- '/categories' as a parameter in column_link is removed because it's modified fragments.html -->
+		<div th:replace="page_pagination :: pagination('top-level categories')"></div>
 	</div>
 	
 	
@@ -114,6 +125,8 @@
  </div>
  <script th:src="@{/js/common_list.js}"></script>	
 <script type="text/javascript">
+
+moduleURL = "[[@{/categories}]]";
 
 	$(document).ready(function() {
 			$(".link-delete").on("click", function(e){

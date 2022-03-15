@@ -14,7 +14,7 @@
 	
 		</div>
 		
-		<div th:replace= "fragments :: search_form_and_message('/brands/page/1')">
+		<div th:replace= "fragments :: search_form_and_message()">
 	
 		</div>
 		
@@ -24,7 +24,10 @@
 					<tr>
 						<th th:class="hideable-column">Brand ID</th>
 						<th>Logo</th>
-						<th th:replace="fragments :: column_link('/brands', 'name', 'Brand Name', 'none')">
+						<!-- <th th:replace="fragments :: column_link('/brands', 'name', 'Brand Name', 'none')"> -->
+						
+						<!-- '/brands' as a parameter in column_link is removed because it's modified fragments.html -->
+						<th th:replace="fragments :: column_link('name', 'Brand Name', 'none')">
 							
 							<!-- <a th:if="${sortField != 'name'}" class="text-white"
 								th:href="@{'/brands/page/' + ${currentPage} + '?sortField=name&sortDir=' + ${sortDir}}">
@@ -183,7 +186,10 @@
 		</div>
 		 -->
 		 
-		 <div th:replace="page_pagination :: pagination('/brands','brands')"></div>
+		 <!-- <div th:replace="page_pagination :: pagination('/brands','brands')"></div> -->
+		 
+		 	<!-- pagination modified with '/brands' as a parameter removed -->
+		 <div th:replace="page_pagination :: pagination('brands')"></div>
 		 
 		<div th:replace="fragments :: footer"></div>
 		

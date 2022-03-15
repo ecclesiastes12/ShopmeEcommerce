@@ -29,6 +29,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.shopme.admin.FileUploadUtil;
 import com.shopme.admin.brand.BrandService;
 import com.shopme.admin.category.CategoryService;
+import com.shopme.admin.paging.PagingAndSortingHelper;
+import com.shopme.admin.paging.PagingAndSortingParam;
 import com.shopme.admin.security.ShopmeUserDetails;
 import com.shopme.common.entity.Brand;
 import com.shopme.common.entity.Category;
@@ -71,53 +73,83 @@ public class ProductController {
 	@GetMapping("/products")
 	public String listByFirstPage(Model model) {
 		
-		return listByPage(1, model, "name", "asc", null,0);	
+		//return listByPage(1, model, "name", "asc", null,0);	
+		
+		return "redirect:/products/page/1?sortField=name&sortDir=asc";
 	}
 	
+//	@GetMapping("/products/page/{pageNum}")
+//	public String listByPage(@PathVariable(name="pageNum") int pageNum, Model model,
+//			@Param("sortField") String sortField,
+//			@Param("sortDir") String sortDir,
+//			@Param("keyword") String keyword,
+//			@Param("categoryId") Integer categoryId //categoryId refers to the name="categoryId" in product.html
+//			){
+//		
+//		
+//		//updated with categoryId for dropdown search
+//		Page<Product> page = productService.listByPage(pageNum, sortField, sortDir,keyword,categoryId);
+//		
+//		List<Product> listProducts = page.getContent();
+//		
+//		List<Category> listCategories = categoryService.listCategoriesUsedInForm();
+//		
+//		// page counter
+//		long startCount = (pageNum - 1) * ProductService.PRODUCT_PER_PAGE + 1;
+//		long endCount = startCount + ProductService.PRODUCT_PER_PAGE - 1;
+//		
+//		//gets the last page number
+//		if(endCount > page.getTotalElements()) {
+//			endCount = page.getTotalElements();
+//		}
+//		
+//		//reverse sorting
+//		String reverseSortDir = sortDir.equals("asc") ? "desc" : "asc";
+//				
+//		//set category id if it is not null
+//		if(categoryId != null) model.addAttribute("categoryId", categoryId);
+//		
+//		model.addAttribute("listProducts", listProducts);
+//		model.addAttribute("listCategories", listCategories);
+//		
+//		model.addAttribute("currentPage", pageNum);
+//		model.addAttribute("totalPages", page.getTotalPages());
+//		model.addAttribute("totalItems", page.getTotalElements());
+//		model.addAttribute("startCount", startCount);
+//		model.addAttribute("endCount", endCount);
+//		
+//		model.addAttribute("sortField", sortField);
+//		model.addAttribute("sortDir", sortDir);
+//		model.addAttribute("reverseSortDir", reverseSortDir);
+//		model.addAttribute("keyword", keyword); //display the keyword 
+//		
+//		//for url, this attribute will replace some of the moduleURL in the fragments.html
+//		model.addAttribute("moduleURL", "/products");
+//		
+//		
+//		return "products/products";
+//	}
+
+	
 	@GetMapping("/products/page/{pageNum}")
-	public String listByPage(@PathVariable(name="pageNum") int pageNum, Model model,
-			@Param("sortField") String sortField,
-			@Param("sortDir") String sortDir,
-			@Param("keyword") String keyword,
+	public String listByPage(
+			@PagingAndSortingParam(listName = "listProducts", moduleURL = "/products") PagingAndSortingHelper helper,
+			@PathVariable(name="pageNum") int pageNum, Model model,
 			@Param("categoryId") Integer categoryId //categoryId refers to the name="categoryId" in product.html
 			){
 		
 		
 		//updated with categoryId for dropdown search
-		Page<Product> page = productService.listByPage(pageNum, sortField, sortDir,keyword,categoryId);
+		//Page<Product> page = productService.listByPage(pageNum, sortField, sortDir,keyword,categoryId);
 		
-		List<Product> listProducts = page.getContent();
+		productService.listByPage(pageNum, helper,categoryId);
 		
+		//list categories
 		List<Category> listCategories = categoryService.listCategoriesUsedInForm();
-		
-		// page counter
-		long startCount = (pageNum - 1) * ProductService.PRODUCT_PER_PAGE + 1;
-		long endCount = startCount + ProductService.PRODUCT_PER_PAGE - 1;
-		
-		//gets the last page number
-		if(endCount > page.getTotalElements()) {
-			endCount = page.getTotalElements();
-		}
-		
-		//reverse sorting
-		String reverseSortDir = sortDir.equals("asc") ? "desc" : "asc";
-				
+			
 		//set category id if it is not null
 		if(categoryId != null) model.addAttribute("categoryId", categoryId);
-		
-		model.addAttribute("listProducts", listProducts);
 		model.addAttribute("listCategories", listCategories);
-		
-		model.addAttribute("currentPage", pageNum);
-		model.addAttribute("totalPages", page.getTotalPages());
-		model.addAttribute("totalItems", page.getTotalElements());
-		model.addAttribute("startCount", startCount);
-		model.addAttribute("endCount", endCount);
-		
-		model.addAttribute("sortField", sortField);
-		model.addAttribute("sortDir", sortDir);
-		model.addAttribute("reverseSortDir", reverseSortDir);
-		model.addAttribute("keyword", keyword); //display the keyword 
 		
 		
 		return "products/products";
@@ -161,14 +193,18 @@ public class ProductController {
 			@AuthenticationPrincipal ShopmeUserDetails loggedUser
 			) throws IOException {
 		
-		//check the role of the logged in user
-		if(loggedUser.hasRole("Salesperson")) {
-			//save only the price information of the product if the logged in user has the role salesperson
-			productService.saveProductPrice(product);
-			
-			ra.addFlashAttribute("message", "The product has been saved successfully.");
-			
-			return "redirect:/products";
+		//check if logged in user role is not Admin and Editor
+		if(!loggedUser.hasRole("Admin") && !loggedUser.hasRole("Editor")) {
+		
+			//check the role of the logged in user
+			if(loggedUser.hasRole("Salesperson")) {
+				//save only the price information of the product if the logged in user has the role salesperson
+				productService.saveProductPrice(product);
+				
+				ra.addFlashAttribute("message", "The product has been saved successfully.");
+				
+				return "redirect:/products";
+			}
 		}
 		/*
 		 * setMainImageName(mainImageMultiparts, product); //method call

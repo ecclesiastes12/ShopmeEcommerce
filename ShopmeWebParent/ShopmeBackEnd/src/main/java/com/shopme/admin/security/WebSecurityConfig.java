@@ -91,7 +91,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
-		.antMatchers("/users/**").hasAuthority("Admin") // this menu is only visible to Admin users
+
+		.antMatchers("/users/**", "/settings/**", "/countries/**", "/states/**").hasAuthority("Admin") // this menu is only visible to Admin users
 		.antMatchers("/categories/**","/brands/**").hasAnyAuthority("Admin","Editor")
 		
 		.antMatchers("/products/new","/products/delete/**") //url for creating new product and deleting product

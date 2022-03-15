@@ -3,6 +3,7 @@ package com.shopme.admin.setting.country;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,8 +38,15 @@ public class CountryRestController {
 	}
 	
 	//delete country by id
-	@GetMapping("/countries/delete/{id}")
-	public void delete(@PathVariable("id") Integer id) {
-		repo.deleteById(id);
-	}
+	/*
+	 * @GetMapping("/countries/delete/{id}") public void delete(@PathVariable("id")
+	 * Integer id) { repo.deleteById(id); }
+	 */
+	
+	//modified 
+	//delete country by id
+		@DeleteMapping("/countries/delete/{id}")
+		public void delete(@PathVariable("id") Integer id) {
+			repo.deleteById(id);
+		}
 }

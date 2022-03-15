@@ -13,6 +13,8 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GeneratorType;
 
+
+
 @Entity
 @Table(name = "countries")
 public class Country {
@@ -30,10 +32,15 @@ public class Country {
 	@OneToMany(mappedBy = "country")
 	Set<State> states;
 	
+	
 	public Country() {}
 	
 	public Country(String name) {
 		this.name = name;
+	}
+	
+	public Country(Integer id) {
+		this.id = id;
 	}
 	
 	public Country(String name, String code) {

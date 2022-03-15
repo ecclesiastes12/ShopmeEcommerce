@@ -19,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.shopme.admin.FileUploadUtil;
+import com.shopme.admin.paging.PagingAndSortingHelper;
+import com.shopme.admin.paging.PagingAndSortingParam;
 import com.shopme.admin.user.UserNotFoundException;
 import com.shopme.admin.user.UserService;
 import com.shopme.admin.user.export.UserCsvExporter;
@@ -33,80 +35,132 @@ public class UserController {
 	@Autowired
 	UserService service;
 
-	//method modified
-	
-	/*
-	 * @GetMapping("/users") public String listAll(Model model) { List<User>
-	 * listUsers = service.listAll(); model.addAttribute("listUsers", listUsers);
-	 * 
-	 * return "users"; }
-	 */
-
-	//public String listAll(Model model) changed to listFirstPage and modified 
-	//to display list of users in pages
 	@GetMapping("/users")
-	public String listFirstPage(Model model) {
+	public String listFirstPage() { //listFirstPage parameters removed because listByPage method 
+									//is not used to return the page
+	
+		//return listByPage(helper,1,model, "firstName","asc",null);
 		
-		/**
-		 * NB firstName used here is the field name of an entity class in the user class
-		 * 
-		 * null keyword is pass to the parameter here
-		 */
-		return listByPage(1,model, "firstName","asc",null);
+		//return string for sort field and direction instead of calling listByPage method 
+		return "redirect:/users/page/1?sortField=firstName&sortDir=asc";
 	}
 	
 	/**
-	 * list user by pagination
-	 *@PathVariable is used here to map the page number in the url
-	 *@Param is used here to map the values of the parameter in the url thus sortfield and sortdir
 	 *
-	 *	method updated for search purpose
+	 *	CHECK UserController1 to see the previous code, comments and the modification
+	 *	made to listByPage method.
 	 */
 	
-	@GetMapping("/users/page/{pageNum}")
-	public String listByPage(@PathVariable(name ="pageNum") int pageNum ,Model model,
-			@Param("sortField") String sortField,
-			@Param("sortDir") String sortDir,
-			@Param("keyword") String keyword) {
+	
+//	//handler method for page number
+//	//@PagingAndSortingParam bind to PagingAndSortingHelper object
+//	//specify the values for listName and moduleURL parameters declared in PagingAndSortingParam annotation
+//	@GetMapping("/users/page/{pageNum}")    
+//	public String listByPage(
+//			@PagingAndSortingParam(listName = "listUsers", moduleURL = "/users") PagingAndSortingHelper helper,
+//			@PathVariable(name ="pageNum") int pageNum ,Model model,
+//			@Param("sortField") String sortField,
+//			@Param("sortDir") String sortDir,
+//			@Param("keyword") String keyword) {
+//		
+//		System.out.println("Sort Field: " + sortField);
+//		System.out.println("Sort Oder: " + sortDir);
+//		
+//		Page<User> page = service.listByPage(pageNum,sortField,sortDir,keyword);
+//		
+//		//code moved to PagingAndSortingHelper class
+//		//get the content to page
+//		//List<User> listUsers = page.getContent();
+//		
+//		/*
+//		 * System.out.println("pageNum =" + pageNum);
+//		 * System.out.println("Total elements = " + page.getTotalElements());
+//		 * System.out.println("Total Pages = " + page.getTotalPages());
+//		 */
+//		
+//		//code moved to PagingAndSortingHelper class
+//		
+////		//count pages
+////		long startCount = (pageNum - 1) * UserService.USERS_PER_PAGE + 1;
+////		long endCount = startCount + UserService.USERS_PER_PAGE - 1;
+////		
+////		//gets the last page number
+////		if(endCount > page.getTotalElements()) {
+////			endCount = page.getTotalElements();
+////		}
+//		
+//		// code moved to PagingAndSortingArgumentResolver class
+//		//sorting
+//		//String reverseSortDir = sortDir.equals("asc") ? "desc" : "asc";
+//		
+//		
+//		//code moved to PagingAndSortingHelper class
+////		model.addAttribute("currentPage", pageNum);
+////		model.addAttribute("totalPages", page.getTotalPages());
+////		model.addAttribute("startCount", startCount);
+////		model.addAttribute("endCount", endCount);
+////		model.addAttribute("totalItems", page.getTotalElements());
+////		model.addAttribute("listUsers", listUsers);
+//		
+//		
+//		//code moved to public Object resolveArgument(... 
+//		//method in PagingAndSortingArgumentResolver class
+//		
+////		model.addAttribute("sortField", sortField);
+////		model.addAttribute("sortDir", sortDir);
+////		model.addAttribute("reverseSortDir", reverseSortDir);
+////		
+////		//display the keyword
+////		model.addAttribute("keyword", keyword); 
+//		
+//		//code moved to PagingAndSortingArgumentResolver class
+//		//for url, this attribute will replace some of the moduleURL in the fragments.html
+//		//model.addAttribute("moduleURL", "/users"); 
+//		
+//		return "users/users";
+//	}
+//	
+	
+	//handler method for page number
+	//@PagingAndSortingParam bind to PagingAndSortingHelper object
+	//specify the values for listName and moduleURL parameters declared in PagingAndSortingParam annotation
+//	@GetMapping("/users/page/{pageNum}")    
+//	public String listByPage(
+//			@PagingAndSortingParam(listName = "listUsers", moduleURL = "/users") PagingAndSortingHelper helper,
+//			@PathVariable(name ="pageNum") int pageNum ,Model model,
+//			@Param("sortField") String sortField,
+//			@Param("sortDir") String sortDir,
+//			@Param("keyword") String keyword) {
+//		
+//		Page<User> page = service.listByPage(pageNum,sortField,sortDir,keyword);
+//		
+//		//method call
+//		helper.updateModelAttributes(pageNum, page);
+//		
+//		
+//		return "users/users";
+//	}
+	
+	//sortField,sortDir and keyword removed because those fields are now accessed
+	//PagingAndSortingHelper
+	@GetMapping("/users/page/{pageNum}")    
+	public String listByPage(
+			@PagingAndSortingParam(listName = "listUsers", moduleURL = "/users") PagingAndSortingHelper helper,
+			@PathVariable(name ="pageNum") int pageNum) {
 		
-		System.out.println("Sort Field: " + sortField);
-		System.out.println("Sort Oder: " + sortDir);
+		//Page<User> page = service.listByPage(pageNum,sortField,sortDir,keyword);
 		
-		Page<User> page = service.listByPage(pageNum,sortField,sortDir,keyword);
+		//page object removed because listByPage method parameter in UserService class
+		//is modified. sortField,sortDir,keyword is replaced with PagingAndSortingHelper  
+		service.listByPage(pageNum,helper);
 		
-		//get the content to page
-		List<User> listUsers = page.getContent();
 		
-		/*
-		 * System.out.println("pageNum =" + pageNum);
-		 * System.out.println("Total elements = " + page.getTotalElements());
-		 * System.out.println("Total Pages = " + page.getTotalPages());
-		 */
+		//method call
+		//this method can be called right in UserService class because listByPage
+		//method in UserService class parameters is modified. Therefore method is
+		//now moved to UserService class
+		//helper.updateModelAttributes(pageNum, page);
 		
-		//count pages
-		long startCount = (pageNum - 1) * UserService.USERS_PER_PAGE + 1;
-		long endCount = startCount + UserService.USERS_PER_PAGE - 1;
-		
-		//gets the last page number
-		if(endCount > page.getTotalElements()) {
-			endCount = page.getTotalElements();
-		}
-		
-		//sorting
-		String reverseSortDir = sortDir.equals("asc") ? "desc" : "asc";
-		
-		model.addAttribute("currentPage", pageNum);
-		model.addAttribute("totalPages", page.getTotalPages());
-		model.addAttribute("startCount", startCount);
-		model.addAttribute("endCount", endCount);
-		model.addAttribute("totalItems", page.getTotalElements());
-		
-		model.addAttribute("listUsers", listUsers);
-		
-		model.addAttribute("sortField", sortField);
-		model.addAttribute("sortDir", sortDir);
-		model.addAttribute("reverseSortDir", reverseSortDir);
-		model.addAttribute("keyword", keyword); //display the keyword
 		
 		return "users/users";
 	}

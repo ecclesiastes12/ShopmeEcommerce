@@ -61,18 +61,25 @@
 					<tr>
 						<th th:class="hideable-column">
 							<!-- <th>Brand ID</th> -->
-							<th th:replace="fragments :: column_link('/products', 'id', 'ID', 'tag')" />
+							<!-- <th th:replace="fragments :: column_link('/products', 'id', 'ID', 'tag')" /> -->
+							
+							<!-- '/products' as a parameter in column_link is removed because it's modified fragments.html -->
+							<th th:replace="fragments :: column_link('id', 'ID', 'tag')" />
 						</th>
 						<th>Main Image</th>
 						<!-- <th>Product Name</th> -->
-						<th th:replace="fragments :: column_link('/products', 'name', 'Product Name', 'none')" />
+						
+						<!-- <th th:replace="fragments :: column_link('/products', 'name', 'Product Name', 'none')" /> -->
+						
+						<!-- '/products' as a parameter in column_link is removed because it's modified fragments.html -->
+						<th th:replace="fragments :: column_link('name', 'Product Name', 'none')" />
 						<!-- <th>Brand</th> -->
 						<th th:class="hideable-column">
-							<th th:replace="fragments :: column_link('/products', 'brand', 'Brand', 'tag')" />
+							<th th:replace="fragments :: column_link('brand', 'Brand', 'tag')" />
 							<!-- <th>Category</th> -->
 						</th>
 						<th th:class="hideable-column">
-							<th th:replace="fragments :: column_link('/products', 'category', 'Category', 'tag')" />
+							<th th:replace="fragments :: column_link('category', 'Category', 'tag')" />
 						</th>
 
 						<th:block sec:authorize="hasAnyAuthority('Admin', 'Editor')">
@@ -247,7 +254,7 @@
 		</div>
 		 -->
 
-		<div th:replace="page_pagination :: pagination('/products','products')"></div>
+		<div th:replace="page_pagination :: pagination('products')"></div>
 
 		<div th:replace="fragments :: footer"></div>
 

@@ -1,8 +1,10 @@
 package com.shopme.admin;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 /**
  * this class is created for the purpose of 
@@ -10,6 +12,8 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
  * the photos stored in directory
  */
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.shopme.admin.paging.PagingAndSortingArgumentResolver;
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
@@ -72,5 +76,12 @@ public class MvcConfig implements WebMvcConfigurer {
 		registry.addResourceHandler(logicalPath)
 		.addResourceLocations("file:/" + absolutePath + "/");
 	}
+
+	//registers custom argument resolver
+	@Override
+	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+		resolvers.add(new PagingAndSortingArgumentResolver());
+	}
+	
 	
 }

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.shopme.admin.paging.PagingAndSortingHelper;
 import com.shopme.common.entity.Role;
 import com.shopme.common.entity.User;
 
@@ -57,23 +58,99 @@ public class UserService {
 	 *
 	 * method updated with the search keyword. check userService2.java to see the changes
 	 */
-	public Page<User> listByPage(int pageNum, String sortField, String sortDir,String keyword){
-		//sort by field name
-		Sort sort = Sort.by(sortField);
-		
-		//sort in ascending or descending order
-		sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
-		
-		Pageable pageable = PageRequest.of(pageNum - 1, USERS_PER_PAGE, sort);
-		
-		//checks if the keyword is not null thus search parameter
-		if(keyword != null) {
-			return userRepo.findAll(keyword,pageable);
-		}
-		
-		return userRepo.findAll(pageable);
-	}
+//	public Page<User> listByPage(int pageNum, String sortField, String sortDir,String keyword){
+//		//sort by field name
+//		Sort sort = Sort.by(sortField);
+//		
+//		//sort in ascending or descending order
+//		sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
+//		
+//		Pageable pageable = PageRequest.of(pageNum - 1, USERS_PER_PAGE, sort);
+//		
+//		//checks if the keyword is not null thus search parameter
+//		if(keyword != null) {
+//			return userRepo.findAll(keyword,pageable);
+//		}
+//		
+//		return userRepo.findAll(pageable);
+//	}
 	
+	//listByPage method parameter modified using  PagingAndSortingHelper class 
+	//String sortField, String sortDir,String keyword were replaced with PagingAndSortingHelper
+	
+//	public Page<User> listByPage(int pageNum, PagingAndSortingHelper helper){
+//		//sort by field name
+//		//Sort sort = Sort.by(sortField);
+//		
+//		//sort by field name now accessed with helper.getSortField()
+//		Sort sort = Sort.by(helper.getSortField());
+//		
+//		//sort in ascending or descending order
+//		//sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
+//		
+//		//sort in ascending or descending order now accessed with helper.getSortDir()
+//		sort = helper.getSortDir().equals("asc") ? sort.ascending() : sort.descending();
+//		
+//		Pageable pageable = PageRequest.of(pageNum - 1, USERS_PER_PAGE, sort);
+//		
+//		//checks if the keyword is not null thus search parameter
+////		if(keyword != null) {
+////			return userRepo.findAll(keyword,pageable);
+////		}
+//		
+//		//keyword parameter check now accessed with helper.getKeyword()
+//		if(helper.getKeyword() != null) {
+//			return userRepo.findAll(helper.getKeyword(),pageable);
+//		}
+//		
+//		return userRepo.findAll(pageable);
+//	}
+	
+	//listByPage method return type change to void because helper.updateModelAttributes(pageNum, page);
+	//was moved from UserController class to UserService class
+	public void listByPage(int pageNum, PagingAndSortingHelper helper){
+		
+		//code similar to listEntities method in PagingAndSortingHelper class
+		
+//		//sort by field name
+//		//Sort sort = Sort.by(sortField);
+//		
+//		//sort by field name now accessed with helper.getSortField()
+//		Sort sort = Sort.by(helper.getSortField());
+//		
+//		//sort in ascending or descending order
+//		//sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
+//		
+//		//sort in ascending or descending order now accessed with helper.getSortDir()
+//		sort = helper.getSortDir().equals("asc") ? sort.ascending() : sort.descending();
+//		
+//		Pageable pageable = PageRequest.of(pageNum - 1, USERS_PER_PAGE, sort);
+//		
+//		//page object declared with a null value because listByPage method return type is change to void
+//		Page<User> page = null;
+//		
+//		//checks if the keyword is not null thus search parameter
+////		if(keyword != null) {
+////			return userRepo.findAll(keyword,pageable);
+////		}
+//		
+//		//keyword parameter check now accessed with helper.getKeyword()
+////		if(helper.getKeyword() != null) {
+////			return userRepo.findAll(helper.getKeyword(),pageable);
+////		}
+//		
+//		if(helper.getKeyword() != null) {
+//			page = userRepo.findAll(helper.getKeyword(),pageable);
+//		}else {
+//			page = userRepo.findAll(pageable);
+//		}
+//		
+//		helper.updateModelAttributes(pageNum, page);
+		
+		
+		//method call
+		helper.listEntities(pageNum, USERS_PER_PAGE, userRepo);
+	}
 	
 	// list all roles
 	public List<Role> listRoles() {

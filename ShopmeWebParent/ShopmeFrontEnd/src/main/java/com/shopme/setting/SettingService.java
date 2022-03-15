@@ -23,5 +23,16 @@ public class SettingService {
 		return repo.findByTwoCategories(SettingCategory.GENERAL, SettingCategory.CURRENCY);
 	}
 
+	// method that returns mail server and mail template setting object
+	//this settings object are set by EmailSettingBag
+	public EmailSettingBag getEmailSettings() {
+		//return a list of mail server settings from the database
+		List<Setting> settings = repo.findByCategory(SettingCategory.MAIL_SERVER);	
+		
+		//appends mail template settings to mail server settings
+		settings.addAll(repo.findByCategory(SettingCategory.MAIL_TEMPLATES));
+		
+		return new EmailSettingBag(settings);//return new EmailSettingBag object
+	}
 	
 }

@@ -11,8 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-
+import com.shopme.admin.paging.PagingAndSortingHelper;
 import com.shopme.common.entity.Brand;
+import com.shopme.common.entity.User;
 
 @Service
 public class BrandService {
@@ -63,26 +64,98 @@ public class BrandService {
 	//method that list brand by Pages 
 	//modified with sorting field and sorting direction
 	//modified with search keyword
-	public Page<Brand> listByPage(int pageNum, String sortField, String sortDir,String keyword){
-		
-		Sort sort = Sort.by(sortField);
-		
-		//sort in ascending or descending order
-		if(sortDir.equals("asc")) {
-			sort = sort.ascending();
-		}else {
-			sort = sort.descending();
+//	public Page<Brand> listByPage(int pageNum, String sortField, String sortDir,String keyword){
+//		
+//		Sort sort = Sort.by(sortField);
+//		
+//		//sort in ascending or descending order
+//		if(sortDir.equals("asc")) {
+//			sort = sort.ascending();
+//		}else {
+//			sort = sort.descending();
+//		}
+//		
+//		Pageable pageable = PageRequest.of(pageNum - 1, BRANDS_PER_PAGE, sort);
+//		
+//		//checks if keyword is not empty or not null
+//		if (keyword != null) {
+//			return repo.findAll(keyword, pageable); //returns the search results if keyword is not null
+//		}
+//		
+//		return repo.findAll(pageable);
+//	}
+
+//	//code modified with sortField, sortDir and keyword replaced with PagingAndSortingHelper helper
+//	public void listByPage(int pageNum, PagingAndSortingHelper helper){
+//			
+//		//Sort sort = Sort.by(sortField);
+//		
+//		//sortField now accessed by helper.getSortField
+//		Sort sort = Sort.by(helper.getSortField());
+//		
+//		
+//		//sort in ascending or descending order
+//		if(helper.getSortDir().equals("asc")) {
+//			sort = sort.ascending();
+//		}else {
+//			sort = sort.descending();
+//		}
+//		
+//		Pageable pageable = PageRequest.of(pageNum - 1, BRANDS_PER_PAGE, sort);
+//		
+//		//page object declared with a null value because listByPage method return type is change to void
+//		Page<Brand> page = null;
+//		
+//		//checks if keyword is not empty or not null
+//		if (helper.getKeyword()!= null) {
+//			page = repo.findAll(helper.getKeyword(), pageable); //returns the search results if keyword is not null
+//		}else {
+//		
+//			page = repo.findAll(pageable);
+//		}
+//		 helper.updateModelAttributes(pageNum, page);
+//	}
+
+	
+	//code modified with sortField, sortDir and keyword replaced with PagingAndSortingHelper helper.
+	//listByPage method return type change to void because helper.updateModelAttributes(pageNum, page);
+	//was moved from BrandController class to BrandService class
+		public void listByPage(int pageNum, PagingAndSortingHelper helper){
+				
+			//code moved to listEntities method in PagingAndSortingHelper
+			//for code modification purpose
+			
+//			//Sort sort = Sort.by(sortField);
+//			
+//			//sortField now accessed by helper.getSortField
+//			Sort sort = Sort.by(helper.getSortField());
+//			
+//			
+//			//sort in ascending or descending order
+//			if(helper.getSortDir().equals("asc")) {
+//				sort = sort.ascending();
+//			}else {
+//				sort = sort.descending();
+//			}
+//			
+//			Pageable pageable = PageRequest.of(pageNum - 1, BRANDS_PER_PAGE, sort);
+//			
+//			//page object declared with a null value because listByPage method return type is change to void
+//			Page<Brand> page = null;
+//			
+//			//checks if keyword is not empty or not null
+//			if (helper.getKeyword()!= null) {
+//				page = repo.findAll(helper.getKeyword(), pageable); //returns the search results if keyword is not null
+//			}else {
+//			
+//				page = repo.findAll(pageable);
+//			}
+//			
+//			helper.updateModelAttributes(pageNum, page);
+			
+			//method call
+			helper.listEntities(pageNum, BRANDS_PER_PAGE, repo);
 		}
-		
-		Pageable pageable = PageRequest.of(pageNum - 1, BRANDS_PER_PAGE, sort);
-		
-		//checks if keyword is not empty or not null
-		if (keyword != null) {
-			return repo.findAll(keyword, pageable); //returns the search results if keyword is not null
-		}
-		
-		return repo.findAll(pageable);
-	}
 
 	
 	

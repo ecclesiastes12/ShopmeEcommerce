@@ -74,8 +74,8 @@ public class CategoryController {
 				CategoryPageInfo pageInfo = new CategoryPageInfo();
 				List<Category> listCategories = service.listByPage(pageInfo, pageNum, sortDir, keyword);
 				
-				long startCount = (pageNum - 1) * CategoryService.ROOT_CATEGORY_PER_PAGE + 1;
-				long endCount = startCount + CategoryService.ROOT_CATEGORY_PER_PAGE - 1;
+				long startCount = (pageNum - 1) * CategoryService.ROOT_CATEGORIES_PER_PAGE + 1;
+				long endCount = startCount + CategoryService.ROOT_CATEGORIES_PER_PAGE - 1;
 				
 				if(endCount > pageInfo.getTotalElements()) {
 					endCount = pageInfo.getTotalElements();
@@ -98,6 +98,9 @@ public class CategoryController {
 				
 				model.addAttribute("listCategories", listCategories);
 				model.addAttribute("reverseSortDir", reverseSortDir);
+				
+				//for url, this attribute will replace some of the moduleURL in the fragments.html
+				model.addAttribute("moduleURL","/categories"); //display the keyword 
 				
 				return "categories/categories";
 		

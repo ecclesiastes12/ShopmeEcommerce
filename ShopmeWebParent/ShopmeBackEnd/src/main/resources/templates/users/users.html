@@ -24,7 +24,12 @@
 			[[${message}]]
 		</div>
 		 -->
-		<div th:replace= "fragments :: search_form_and_message('/users/page/1')">
+		 
+		<!-- <div th:replace= "fragments :: search_form_and_message('/users/page/1')"> -->
+		
+		<!--search_form_and_message modified with '/users/page/1' as a parameter removed  -->
+		<div th:replace= "fragments :: search_form_and_message">
+		
 			<!-- code moved to fragment.html -->
 		
 <!-- 			<form th:action="@{/users/page/1}" class="form-inline m-3"> -->
@@ -62,11 +67,23 @@
 						<!-- without removeTag in column_link in fragment.html this tag(th) will not hide
 							Don't forget to code the hideable-column in the @media inside your css file eg style.css
 						 -->
-							<th th:replace="fragments :: column_link('/users','id','User ID', 'tag')"></th>
+						 
+						 
+							<!-- <th th:replace="fragments :: column_link('/users','id','User ID', 'tag')"></th> -->
+						
+						<!-- '/users' as a parameter in column_link is removed because it's modified fragments.html -->
+							<th th:replace="fragments :: column_link('id','User ID', 'tag')"></th>
+						
 						</th>
 						<th>Photos</th>
 						<th class="hideable-column">
-							<th th:replace="fragments :: column_link('/users','email','E-mail','tag')">
+						
+							<!-- <th th:replace="fragments :: column_link('/users','email','E-mail','tag')"> -->
+							
+							<!-- '/users' as a parameter in column_link is removed because it's modified fragments.html -->
+									<th th:replace="fragments :: column_link('email','E-mail','tag')">
+									
+									
 							<!-- <a th:if="${sortField != 'email'}" class="text-white"
 								th:href="@{'/users/page/' + ${currentPage} + '?sortField=email&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}">
 								Email
@@ -82,7 +99,7 @@
 						</th>
 						
 						<!-- sort order --> 
-						<th th:replace="fragments :: column_link('/users','firstName','First Name','none')">
+						<th th:replace="fragments :: column_link('firstName','First Name','none')">
 							<!-- making column header clickable -->
 							<!-- <a th:if="${sortField != 'firstName'}" class="text-white"
 								th:href="@{'/users/page/' + ${currentPage} + '?sortField=firstName&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}">
@@ -98,7 +115,7 @@
 							th:class="${sortDir == 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'}"></span> -->
 						</th>
 						
-						<th th:replace="fragments :: column_link('/users','lastName','Last Name','none')">
+						<th th:replace="fragments :: column_link('lastName','Last Name','none')">
 							<!-- <a th:if="${sortField != 'lastName'}" class="text-white"
 								th:href="@{'/users/page/' + ${currentPage} + '?sortField=lastName&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}">
 								Last Name
@@ -111,7 +128,7 @@
 								th:class="${sortDir == 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down'}"></span> -->
 						</th>
 						<th>Roles</th>
-						<th th:replace="fragments :: column_link('/users','enabled','Enabled','none')">
+						<th th:replace="fragments :: column_link('enabled','Enabled','none')">
 							<!-- <a th:if="${sortField != 'enabled'}" class="text-white"
 								th:href="@{'/users/page/' + ${currentPage} + '?sortField=enabled&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}">
 								Enabled
@@ -215,7 +232,10 @@
 			</div>
 		</div>
 		
-		<div th:replace="page_pagination :: pagination('/users','users')"></div>
+		<!-- <div th:replace="page_pagination :: pagination('/users','users')"></div> -->
+		
+		<!-- pagination modified with '/users' as a parameter removed -->
+		<div th:replace="page_pagination :: pagination('users')"></div>
 		
 		<div class="modal fade text-center" id="confirmModal">
 		<div class="modal-dialog">
