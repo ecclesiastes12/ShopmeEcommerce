@@ -63,10 +63,11 @@ public class CustomerUserDetails implements UserDetails{
 	}
 
 	//for customer full name
-	public String getFullname() {
+	public String getFullName() {
 		return customer.getFirstName() + " " + customer.getLastName();
 	}
 	
+	//returns customer object. this is for DatabaseLoginSuccessHander class
 	public Customer getCustomer() {
 		return this.customer;
 	}
@@ -85,5 +86,5 @@ public class CustomerUserDetails implements UserDetails{
 //		
 //	}
 
-	
+
 }

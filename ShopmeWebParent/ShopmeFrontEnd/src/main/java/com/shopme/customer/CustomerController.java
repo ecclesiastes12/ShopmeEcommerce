@@ -11,14 +11,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.shopme.Utility;
 import com.shopme.common.entity.Country;
 import com.shopme.common.entity.Customer;
+import com.shopme.security.CustomerUserDetails;
+import com.shopme.security.oauth.CustomerOAuth2User;
 import com.shopme.setting.EmailSettingBag;
 import com.shopme.setting.SettingService;
 
@@ -51,10 +58,10 @@ public class CustomerController {
 		
 		model.addAttribute("pageTitle", "Registration succeeded!");
 		
+		customerService.registerCustomer(customer);//register the customer
+		
 		//method call
 		sendVerificationEmail(request, customer);
-		
-		customerService.registerCustomer(customer);//register the customer
 		
 		return "register/register_success";
 	}
@@ -120,4 +127,137 @@ public class CustomerController {
 		
 		return "register/" + (verified ? "verify_success" : "verify_fail");
 	}
+	
+//	//handler method for customer details
+//	@GetMapping("/account_details")
+//	public String viewAccountDetails(Model model, HttpServletRequest request) {
+////		//get the user principal object that represent authenticated user object
+////		Object principal = request.getUserPrincipal();
+////		//get the principal name
+////		String principalType = principal.getClass().getName();
+////		
+////		System.out.println("Prinicipal name: " + request.getUserPrincipal().getName());
+////		System.out.println(principalType);
+////		//NB if customer logged in with email and password the Principal name is the customer email and princiapalType is UsernamePasswordAuthenticationToken
+////		//NB if customer logged in with google or facebook the Principal name is the customer name and princiapalType is OAuth2AuthenticationToken
+////		//NB if customer logged in with remember-me the Principal name is the customer email and princiapalType is RememberMeAuthenticationToken
+//	
+//		return "customer/account_form";
+//	}
+	
+	//handler method for displaying customer details form
+	@GetMapping("/account_details")
+	public String viewAccountDetails(Model model, HttpServletRequest request) {
+		//get email of authenticated customer. method call
+		String email = Utility.getEmailOfAuthenticatedCustomer(request);
+		
+		//get customer object from the customerService class
+		Customer customer = customerService.getCustomerByEmail(email);
+		List<Country> listCountries = customerService.listAllCountries();
+		
+		model.addAttribute("customer", customer);
+		model.addAttribute("listCountries", listCountries);
+		
+		
+		return "customer/account_form";
+	}
+	
+	
+	//method moved to Utility.java and modified
+//	//method that get the email of authenticated customer
+//	private String getEmailOfAuthenticatedCustomer(HttpServletRequest request) {
+//		//get the user principal object that represent authenticated user object
+//		Object principal = request.getUserPrincipal();
+//			
+//		String customerEmail = null;
+//		
+//		//get instance of customer email if customer logged in with email and password or remember-me
+//		if(principal instanceof UsernamePasswordAuthenticationToken
+//				|| principal instanceof RememberMeAuthenticationToken) {
+//			customerEmail = request.getUserPrincipal().getName();
+//			//get instance of customer name if customer logged in with google or facebook
+//		}else if(principal instanceof OAuth2AuthenticationToken){
+//			OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) principal;
+//			CustomerOAuth2User oauth2User = (CustomerOAuth2User) oauth2Token.getPrincipal();
+//			customerEmail = oauth2User.getEmail();//get customer email
+//		}
+//		
+//		return customerEmail;	
+//	}
+//	
+	
+	
+	//handler method for updating customer details
+	@PostMapping("/update_account_details")
+	public String updateAccountDetails(Model model, Customer customer, RedirectAttributes ra,
+			HttpServletRequest request) {
+		customerService.update(customer);
+		ra.addFlashAttribute("message", "Your account details have been updated!");
+		
+		//method call
+		updateNameForAuthenticatedCustomer(customer, request);
+		return "redirect:/account_details";
+	}
+
+
+	private void updateNameForAuthenticatedCustomer(Customer customer, HttpServletRequest request) {
+		//get the user principal object that represent authenticated user object
+		Object principal = request.getUserPrincipal();
+		
+		
+		//get instance of customer email if customer logged in with email and password or remember-me
+		if(principal instanceof UsernamePasswordAuthenticationToken
+				|| principal instanceof RememberMeAuthenticationToken) {
+			CustomerUserDetails userDetails = getCustomerUserDetailsObject(principal);
+			
+			//get the customer object in the CustomerUserDetails class
+			Customer authenticatedCustomer = userDetails.getCustomer();
+			
+			//set customer first and last name
+			authenticatedCustomer.setFirstName(customer.getFirstName());
+			authenticatedCustomer.setLastName(customer.getLastName());
+			
+			//get instance of customer name if customer logged in with google or facebook
+		}else if(principal instanceof OAuth2AuthenticationToken){
+			OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) principal;
+			CustomerOAuth2User oauth2User = (CustomerOAuth2User) oauth2Token.getPrincipal();
+			
+			//get customer full name
+			String fullName = customer.getFirstName() + " " + customer.getLastName();
+			
+			oauth2User.setFullName(fullName);//set customer full name
+		}
+	}
+	
+	//method to get CustomerUserDetails object
+	private CustomerUserDetails getCustomerUserDetailsObject(Object principal) {
+		CustomerUserDetails userDetails = null;
+		//get the CustomerUserDetails object via the principal
+		if(principal instanceof UsernamePasswordAuthenticationToken) {
+			//assign the principal to the UsernamePasswordAuthenticationToken variable
+			UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
+			
+			//get customer user details
+			userDetails = (CustomerUserDetails) token.getPrincipal();
+			
+			//check if the principal object is an instance of RememberMeAuthenticationToken
+		}else if (principal instanceof RememberMeAuthenticationToken) {
+			//get the CustomerUserDetails object via the principal
+			RememberMeAuthenticationToken token = (RememberMeAuthenticationToken) principal;
+			
+			//get customer user details
+			userDetails = (CustomerUserDetails) token.getPrincipal();
+		}
+	
+		
+		return userDetails;
+	}
+		
+	
+	
+	
+	
+	
+	
+	
 }

@@ -10,13 +10,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomerOAuth2UserService extends DefaultOAuth2UserService {
 
+//	@Override
+//	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+//		OAuth2User user = super.loadUser(userRequest);
+//		
+//		//returns a new object of CustomerOAuth2User class
+//		return new CustomerOAuth2User(user);
+//	}
+	
+	//modified with clientName
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		// TODO Auto-generated method stub
+		//get the client name through the oauth2 userRequest object thus type of client registration
+		String clientName = userRequest.getClientRegistration().getClientName();
+		
 		OAuth2User user = super.loadUser(userRequest);
 		
 		//returns a new object of CustomerOAuth2User class
-		return new CustomerOAuth2User(user);
+		return new CustomerOAuth2User(user, clientName);
 	}
 
 	

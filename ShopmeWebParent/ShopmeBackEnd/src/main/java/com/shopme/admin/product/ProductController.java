@@ -281,15 +281,52 @@ public class ProductController {
 	}
 	
 	
+//	@GetMapping("/products/edit/{id}")
+//	public String editProduct(@PathVariable("id") Integer id,
+//			Model model,
+//			RedirectAttributes ra) {
+//		try {
+//			Product product = productService.get(id);
+//			List<Brand> listBrands = brandService.listAll();
+//			Integer numberOfExistingExtraImages = product.getImages().size();
+//			
+//			model.addAttribute("product", product);
+//			model.addAttribute("listBrands", listBrands);
+//			model.addAttribute("pageTitle", "Edit Product (ID: " + id + ")");
+//			model.addAttribute("numberOfExistingExtraImages", numberOfExistingExtraImages);
+//			
+//			return "products/product_form";
+//			
+//		} catch (ProductNotFoundException ex) {
+//			ra.addFlashAttribute("message", ex.getMessage());
+//			
+//			return "redirect:/products";
+//		}
+//	}
+	
+	//handler method modified 
 	@GetMapping("/products/edit/{id}")
 	public String editProduct(@PathVariable("id") Integer id,
 			Model model,
-			RedirectAttributes ra) {
+			RedirectAttributes ra,
+			@AuthenticationPrincipal ShopmeUserDetails loggedUser) {
 		try {
 			Product product = productService.get(id);
 			List<Brand> listBrands = brandService.listAll();
 			Integer numberOfExistingExtraImages = product.getImages().size();
 			
+			//variable declaration for read only fields
+			boolean isReadOnlyForSalesperson = false;
+			//check if logged in user role is not Admin and Editor
+			if(!loggedUser.hasRole("Admin") && !loggedUser.hasRole("Editor")) {
+			
+				//check the role of the logged in user
+				if(loggedUser.hasRole("Salesperson")) {
+					isReadOnlyForSalesperson = true;
+				}
+			}
+			//isReadOnlyForSalesperson being added to the model will render some fields to be read only
+			model.addAttribute("isReadOnlyForSalesperson", isReadOnlyForSalesperson);
 			model.addAttribute("product", product);
 			model.addAttribute("listBrands", listBrands);
 			model.addAttribute("pageTitle", "Edit Product (ID: " + id + ")");
@@ -303,7 +340,6 @@ public class ProductController {
 			return "redirect:/products";
 		}
 	}
-	
 	
 	@GetMapping("/products/detail/{id}")
 	public String viewProductDetails(@PathVariable("id") Integer id,

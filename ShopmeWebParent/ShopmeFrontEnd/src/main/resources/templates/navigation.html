@@ -69,9 +69,10 @@
 							placeholder="keyword" required />
 							<input type="submit" class="btn btn-outline-success" value="Search" />
 						</form>
-						<th:block sec:authorize="isAuthenticated()">
+						
 						<ul class="navbar-nav">
-						<li class="nav-item"><b><a class="nav-link" th:href="@{/customer}" 
+						<th:block sec:authorize="isAuthenticated()">
+						<li class="nav-item"><b><a class="nav-link" th:href="@{/account_details}" 
 								sec:authentication="principal.fullName"></a></b>
 						</li>
 
@@ -87,8 +88,9 @@
 						<li class="nav-item "><a class="nav-link " href="">
 								Orders</a></li>
 
-						<li class="nav-item "><a class="nav-link " href="">
-								Cart</a></li>
+						<li class="nav-item ">
+							<a class="nav-link fas fa-shopping-cart fa-2x " th:href="@{/cart}"></a>
+						</li>
 								<!-- document.logoutForm.submit() now moved to common.js -->
 <!-- 						<li class="nav-item "><a class="nav-link " href="javascript: document.logoutForm.submit()"> -->
 <!-- 						Logout</a></li> -->

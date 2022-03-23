@@ -76,7 +76,7 @@ public class Product {
 	Brand brand;
 
 	//NB product used in mappedBy = "product" is the name of the 
-	//viariable product decleared in ProductImage class
+	//variable product declared in ProductImage class
 	/**
 	 * orphanRemoval is an entirely ORM-specific thing. 
 	 * It marks "child" entity to be removed when it's no 
@@ -97,6 +97,11 @@ public class Product {
 	List<ProductDetail> details = new ArrayList<>();
 	
 	public Product() {}
+	
+	public Product(Integer id) {
+		this.id = id;
+	}
+
 	public Integer getId() {
 		return id;
 	}

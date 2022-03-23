@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.apache.xpath.operations.And;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +27,7 @@ public class CustomerService {
 	public static final int CUSTOMER_PER_PAGE = 10;
 	
 	@Autowired
-	CustomerRepository repo;
+	CustomerRepository customerRepo;
 	
 	@Autowired
 	CountryRepository countryRepository;
@@ -35,7 +36,7 @@ public class CustomerService {
 	PasswordEncoder encoder;
 	
 	public List<Customer> listAll(){
-		return (List<Customer>) repo.findAll();
+		return (List<Customer>) customerRepo.findAll();
 	}
 	
 	//NB Check CustomerService1 for the previous code 
@@ -46,29 +47,29 @@ public class CustomerService {
 	public void listByPage(int pageNum, PagingAndSortingHelper helper){
 		
 		//method call
-		helper.listEntities(pageNum, CUSTOMER_PER_PAGE, repo);
+		helper.listEntities(pageNum, CUSTOMER_PER_PAGE, customerRepo);
 	}
 		
 		//method that get customer by email
 		public Customer getCustomerEmail(String email) {
-			return repo.findCustomerByEmail(email);
+			return customerRepo.findCustomerByEmail(email);
 		}
 		
 		//method to update customer status
 		public void updateCustomerStatus(Integer id, boolean enabled) {
-			repo.updateCustomerEnabledStatus(id, enabled);
+			customerRepo.updateCustomerEnabledStatus(id, enabled);
 		}
 		
 		//method that list all countries
 //		public List<Country> listAllCountries(){
-//			return countryRepository.findAllByOrderByNameAsc();
+//			return countrycustomerRepository.findAllByOrderByNameAsc();
 //		}
 		
 		
 		//method to get customer by id
 		public Customer getCustomerId(Integer id) throws CustomerNotFoundException {
 			try {
-				return repo.findById(id).get();
+				return customerRepo.findById(id).get();
 			} catch (Exception e) {
 				throw new CustomerNotFoundException("Could not find any customers with ID " + id);
 			}
@@ -77,7 +78,7 @@ public class CustomerService {
 		//method that check customer email
 		public boolean isEmailUnique(Integer id, String email) {
 			//get customers email
-			Customer existCustomer = repo.findCustomerByEmail(email);
+			Customer existCustomer = customerRepo.findCustomerByEmail(email);
 			
 			//check customer id and email
 			if(existCustomer != null && existCustomer.getId() != id) {
@@ -88,11 +89,40 @@ public class CustomerService {
 			return true;
 		}
 		
-		//method that update customer
+//		//method that update customer
+//		public void save(Customer customerInForm) {
+//			
+//			//grab existing password from the db using customer id if password field is empty
+//			Customer customerInDB = customerRepo.findById(customerInForm.getId()).get();
+//			
+//			//checks if customer password field is not empty
+//			if(!customerInForm.getPassword().isEmpty()) {
+//				//encrypts the password
+//				String encodedPassword = encoder.encode(customerInForm.getPassword());
+//				//sets the new password
+//				customerInForm.setPassword(encodedPassword);
+//			}else {
+//				
+//				//sets the new password
+//				customerInForm.setPassword(customerInDB.getPassword());
+//			}
+//			
+//			//set customer status, registration date and time,verification code  
+//			//and authentication type by using the one that already exist in the db
+//			customerInForm.setEnabled(customerInDB.isEnabled());
+//			customerInForm.setCreatedTime(customerInDB.getCreatedTime());
+//			customerInForm.setVerificationCode(customerInDB.getVerificationCode());
+//			customerInForm.setAuthenticationType(customerInDB.getAuthenticationType());
+//			//saves customer
+//			customerRepo.save(customerInForm);
+//		}
+		
+		
+		//method that update customer modified with reset password token
 		public void save(Customer customerInForm) {
 			
 			//grab existing password from the db using customer id if password field is empty
-			Customer customerInDB = repo.findById(customerInForm.getId()).get();
+			Customer customerInDB = customerRepo.findById(customerInForm.getId()).get();
 			
 			//checks if customer password field is not empty
 			if(!customerInForm.getPassword().isEmpty()) {
@@ -106,18 +136,28 @@ public class CustomerService {
 				customerInForm.setPassword(customerInDB.getPassword());
 			}
 			
-			//set customer status, registration date and time and verification code by 
-			//using the one that already exist in the db
+			//set customer status, registration date and time,verification code  
+			//and authentication type by using the one that already exist in the db
 			customerInForm.setEnabled(customerInDB.isEnabled());
 			customerInForm.setCreatedTime(customerInDB.getCreatedTime());
 			customerInForm.setVerificationCode(customerInDB.getVerificationCode());
+			customerInForm.setAuthenticationType(customerInDB.getAuthenticationType());
 			
+			customerInForm.setResetPasswordToken(customerInDB.getResetPasswordToken());
 			//saves customer
-			repo.save(customerInForm);
+			customerRepo.save(customerInForm);
 		}
-		
 		//method that list all countries. for customer edit form
 		public List<Country> listAllCountries(){
 			return countryRepository.findAllByOrderByNameAsc();
+		}
+		
+		public void delete(Integer id) throws CustomerNotFoundException {
+			Long count = customerRepo.countById(id);
+			if (count == null || count == 0) {
+				throw new CustomerNotFoundException("Could not find any customers with ID " + id);
+			}
+			
+			customerRepo.deleteById(id);
 		}
 }

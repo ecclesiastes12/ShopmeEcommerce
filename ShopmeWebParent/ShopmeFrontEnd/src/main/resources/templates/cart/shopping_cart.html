@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+      <!-- The header has been moved to fragments.html -->
+<!-- <head th:replace="fragments :: page_head('Home - Shopme Admin')"></head> -->
+<head th:replace="fragments :: page_head('Shopping Cart', 'none')"></head>
+<body>
+	<div class="container-fluid">
+		<div th:replace="navigation :: header_menu"></div>
+		
+		<div th:replace="navigation :: search_nav"></div>
+
+		<div class="text-center">
+			<h2>Your Shopping Cart</h2>
+		</div>
+		
+		
+		<div class="row m-1">
+			<div class="col-sm-8">
+				<!-- iterate through each cart item object-->
+				<th:block th:each="item, status : ${cartItems}">
+					<!-- th:with="product = ${item.product}" local variable declaration
+						We can use the th:with attribute to declare local variables in Thymeleaf templates.
+					 -->
+					<div class="row border rounded p-1" th:with="product = ${item.product}">
+						<div class="col-1"> <!--  first column in the shopping cart view -->
+							<div>[[${status.count}]]</div>
+							
+							<div><!--  second column in the shopping cart view -->
+								<!--  delete icon -->
+								<a class="fas fa-trash" href=""></a>
+							</div>
+						</div>
+						
+						<div class="col-3"><!--  third column in the shopping cart view -->
+							<!--  image display -->
+							<img  th:src="@{${product.mainImagePath}}" class="img-fluid" />
+						</div>
+						<div class="col-6">
+							<div>
+								<a th:href="@{'/p/' + ${product.alias}}" target="_blank"
+									th:title="${product.name}">
+									<b>[[${product.shortName}]]</b>
+								</a>
+							</div>
+							<div th:replace="cart/quantity_control :: quantity_control(${item.quantity}, ${product.id})"></div>
+							
+							<div>
+								<span>X&nbsp;</span><!-- multiplication sign -->
+								<div th:replace="product/product_fragment :: product_price"></div>
+							</div>
+							
+							<div>
+								<span>=&nbsp;</span><!-- equal sign -->
+								<span th:if="${CURRENCY_SYMBOL_POSITION == 'Before price'}" th:remove="tag">
+									[[${CURRENCY_SYMBOL}]]
+								</span>
+									[[${#numbers.formatDecimal(item.getsubtotal, 1, THOUSANDS_POINT_TYPE, DECIMAL_DIGITS, DECIMAL_POINT_TYPE)}]]
+								<span th:if="${CURRENCY_SYMBOL_POSITION == 'After price'}" th:remove="tag">
+									[[${CURRENCY_SYMBOL}]]
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="row m-1">&nbsp;</div>
+				</th:block>
+			</div>
+			
+			<div class="col-sm-4">
+				<div>
+					<span class="h3"> Estimated Total</span>
+				</div>
+			</div>
+			
+		</div>
+		
+		
+		
+		
+		<div th:replace="navigation :: footer_menu"></div>
+	</div>
+	
+<script type="text/javascript" th:src="@{/js/quantity_control.js}"></script>
+<script type="text/javascript" th:src="@{/js/add_to_cart.js}"></script>
+</body>
+</html>

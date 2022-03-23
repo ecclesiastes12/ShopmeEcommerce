@@ -71,9 +71,24 @@ public class Customer {
 	@Enumerated(EnumType.STRING)//meaning the enumerated variable is of type string
 	@Column(name = "authentication_type", length =10)
 	AuthenticationType authenticationType;
+	
+	@Column(name = "reset_password_token", length = 30)
+	String resetPasswordToken;
+
+	public String getResetPasswordToken() {
+		return resetPasswordToken;
+	}
+
+	public void setResetPasswordToken(String resetPasswordToken) {
+		this.resetPasswordToken = resetPasswordToken;
+	}
 
 	public Customer() {
 	
+	}
+	
+	public Customer(Integer id) {
+		this.id = id;
 	}
 
 	public Integer getId() {

@@ -5,7 +5,7 @@
 <body>
 	<div class="container-fluid">
 		<div th:replace="navigation :: header_menu"></div>
-		
+		<div th:replace="navigation :: search_nav"></div>
 		<div th:replace="breadcrumb :: content"></div>
 		
 		<div class="row">
@@ -98,12 +98,23 @@
 					<span th:if="${product.inStock}" class="text-success"><b>In Stock</b></span>
 					<span th:unless="${product.inStock}" class="text-danger"><b>Out of Stock</b></span>
 				</div>
-				<div class="mt-2">
-					<input type="text" size="5" value="1">
-				</div>
-				<div class="mt-3">
-					<input type="button" value="Add to Cart" class="btn btn-primary">
-				</div>
+<!-- 				<div class="mt-2"> -->
+<!-- 					<input type="text" size="5" value="1"> -->
+<!-- 				</div> -->
+<!-- 				<div th:replace="cart/quantity_control :: quantity_control"></div> -->
+
+				<!--  quantity_control parameterized-->
+<!-- 				<div th:replace="cart/quantity_control :: quantity_control(1, ${product.id})"></div> -->
+<!-- 				<div class="mt-3"> -->
+<!-- 					<input type="button" value="Add to Cart" class="btn btn-primary"> -->
+<!-- 				</div> -->
+
+				<th:block th:if="${product.inStock}"><!-- will only be available if there is a product in stock -->
+					<div th:replace="cart/quantity_control :: quantity_control(1, ${product.id})"></div>
+					<div class="mt-3">
+						<input type="button" value="Add to Cart" id="buttonAdd2Cart" class="btn btn-primary">
+					</div>
+				</th:block>
 			</div>
 		</div>
 		
@@ -133,10 +144,20 @@
 		</div>
 		
 		<div th:replace="product/images_carousel :: content"></div>
+		<div th:replace="fragments :: modal_dialog"></div>
 		<div th:replace="navigation :: footer_menu"></div>
 	</div>
 	
 <script type="text/javascript">
+
+//context path of the application
+//context path declaration using thymeleaf expression
+contextPath = "[[@{/}]]";
+productId = "[[${product.id}]]";
+
+//generates csrfHeaderName and csrfHeaderValue to prevent cross site force attack
+	var csrfHeaderName = "[[${_csrf.headerName}]]";
+	var csrfValue = "[[${_csrf.token}]]";
 
 /*
 // before updating with index
@@ -194,5 +215,8 @@ $(document).ready(function() {
 	});
 });
 </script>
+<script type="text/javascript" th:src="@{/js/common_modal.js}"></script>
+<script type="text/javascript" th:src="@{/js/quantity_control.js}"></script>
+<script type="text/javascript" th:src="@{/js/add_to_cart.js}"></script>
 </body>
 </html>

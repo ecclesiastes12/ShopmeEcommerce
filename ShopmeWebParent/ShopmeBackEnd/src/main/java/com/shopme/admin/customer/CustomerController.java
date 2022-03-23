@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.shopme.admin.paging.PagingAndSortingHelper;
 import com.shopme.admin.paging.PagingAndSortingParam;
+import com.shopme.admin.user.UserNotFoundException;
 import com.shopme.common.entity.Country;
 import com.shopme.common.entity.Customer;
 import com.shopme.common.exception.CustomerNotFoundException;
@@ -193,5 +194,27 @@ public class CustomerController {
 			ra.addFlashAttribute("message", e.getMessage());
 			return "redirect:/customers";
 		}
+	}
+	
+	//handler method that delete customer
+	@GetMapping("/customers/delete/{id}")
+	public String deleteCustomer(@PathVariable(name = "id") Integer id,
+			Model model,
+			RedirectAttributes redirectAttributes) {
+		
+		// retrieve the user object by id
+		// method call from the service class
+		try {
+			customerService.delete(id);
+
+			redirectAttributes.addFlashAttribute("message", "The user ID " + id + " has been deleted succesfully");
+
+		} catch (CustomerNotFoundException ex) {
+			// redirectAttributes is for displaying the error message or customer exception
+			// created in the CustomerService class thus CustomerNotFoundException in the get method
+			redirectAttributes.addFlashAttribute("message", ex.getMessage());
+		}
+		
+		return "redirect:/customers";
 	}
 }
