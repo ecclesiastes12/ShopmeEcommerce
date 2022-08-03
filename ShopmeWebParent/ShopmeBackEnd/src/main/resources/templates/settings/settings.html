@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- The header has been moved to fragments.html 
+
+NB ${pageTitle} is used here because it is stated in the 
+user controller that the pageTitle should be pass the title in the 
+page head tag
+-->
+
+<head>
+	<head th:replace="fragments :: page_head('Settings - Shopme Admin', 'tag')"></head>
+	<link rel="stylesheet" type="text/css" th:href="@{/richtext/richtext.min.css}">
+	<script type="text/javascript" th:src="@{/richtext/jquery.richtext.min.js}"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<div th:replace="navigation :: menu">
+	</div>
+	<div>
+		<!-- <h2>Manage Users | Create New User</h2> -->
+		<h2>Site Settings </h2>
+	</div>
+	
+	<div th:if="${message != null}" class="alert alert-success text-center">
+		[[${message}]]
+	</div>
+	
+		<div>
+			<!-- Nav tabs -->
+			<ul class="nav nav-tabs" id="settingTab" role="tablist">
+			  <li class="nav-item" role="presentation">
+			    <a class="nav-link active"   data-toggle="tab" href="#general" role="tab">General</a>
+			    
+			  </li>
+			  <li class="nav-item" role="presentation">
+			    <a class="nav-link"  data-toggle="tab" href="#countries" role="tab">Countries</a>
+			  </li>
+			  <li class="nav-item" role="presentation">
+			    <a class="nav-link"  data-toggle="tab" href="#states" role="tab">States</a>
+			  </li>
+			  <li class="nav-item" role="presentation">
+			    <a class="nav-link"  data-toggle="tab" href="#mailServer" role="tab" >Mail Server</a>
+			  </li>
+			  <li class="nav-item" role="presentation">
+			    <a class="nav-link"  data-toggle="tab" href="#mailTemplates" role="tab" >Mail Template</a>
+			  </li>
+			  <li class="nav-item" role="presentation">
+			    <a class="nav-link"  data-toggle="tab" href="#payment" role="tab" >Payment</a>
+			  </li>
+			</ul>
+			
+			<!-- Tab panes -->
+			<div class="tab-content">
+			  <div class="tab-pane active p-3" id="general" role="tabpanel">
+			  	<div th:replace="settings/general :: content"></div>
+			  </div>
+			  <div class="tab-pane p-3" id="countries" role="tabpanel">
+			  	<div th:replace="settings/countries :: content"></div>
+			  </div>
+			  <div class="tab-pane p-3" id="states" role="tabpanel">
+			  	<div th:replace="settings/states :: content"></div>
+			  </div>
+			  <div class="tab-pane p-3" id="mailServer" role="tabpanel">
+			  	<div th:replace="settings/mail_server :: content"></div>
+			  </div>
+			  <div class="tab-pane p-3" id="mailTemplates" role="tabpanel">
+			  	<div th:replace="settings/mail_templates/mail_templates :: content"></div>
+			  </div>
+			  <div class="tab-pane p-3" id="payment" role="tabpanel">
+			  	<div th:replace="settings/payment :: content"></div>
+			  </div>
+			</div>
+		</div>
+	
+	<!-- for toast(notification) message -->
+	 <div class="toast justify-content-center d-flex" role="alert" aria-live="polite" aria-atomic="true" data-delay="3000">
+	  <div role="alert" aria-live="assertive" aria-atomic="true">
+	  	<div class="toast-body">
+	  		<span id="toastMessage">
+	  		</span>
+	  	</div>
+	  </div>
+	 </div>
+	 
+	<div th:replace="fragments :: footer"></div>
+ </div> 
+<script type="text/javascript">
+	MAX_FILE_SIZE = 102400;
+	
+	//context path of the application
+	//context path declaration using thymeleaf expression
+	contextPath = "[[@{/}]]";
+	
+	//generates csrfHeaderName and csrfHeaderValue to prevent cross site force attack
+	var csrfHeaderName = "[[${_csrf.headerName}]]";
+	var csrfValue = "[[${_csrf.token}]]";
+	
+	//for textarea inside the mail templates section
+	$(document).ready(function(){
+		$("#customerVerificationContent").richText();
+		$("#orderConfirmationContent").richText({height: 400}); //increase text height
+	});
+	
+	
+</script>
+<script th:src="@{/js/common_form.js}"></script>
+<script th:src="@{/js/countries_setting.js}"></script>
+<script th:src="@{/js/states_setting.js}"></script>
+</body>
+</html>

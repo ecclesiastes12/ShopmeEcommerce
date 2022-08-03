@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+      <!-- The header has been moved to fragments.html -->
+<!-- <head th:replace="fragments :: page_head('Home - Shopme Admin')"></head> -->
+<head th:replace="fragments :: page_head('Shopping Cart', 'none')"></head>
+<body>
+	<div class="container-fluid">
+		<div th:replace="navigation :: header_menu"></div>
+		
+		<div th:replace="navigation :: search_nav"></div>
+
+		<div class="text-center">
+			<h2>Your Shopping Cart</h2>
+		</div>
+		
+		
+		<div class="row m-1">
+			<div class="col-sm-8">
+				<!-- iterate through each cart item object-->
+				<th:block th:each="item, status : ${cartItems}">
+					<!-- th:with="product = ${item.product}" local variable declaration
+						We can use the th:with attribute to declare local variables in Thymeleaf templates.
+					
+					NB th:id="'row' + ${status.count}" is for removing the HTML div section when item in the cart is deleted
+					 -->
+					<div class="row border rounded p-1" th:with="product = ${item.product}" th:id="'row' + ${status.count}">
+						<div class="col-1"> <!--  first column in the shopping cart view -->
+							<div class="divCount">[[${status.count}]]</div>
+							
+							<div><!--  second column in the shopping cart view -->
+								<!--  delete icon 
+									
+									NB rowNumber is custom attribute name and its purpose is to store count number of the product
+								-->
+								<a class="fas fa-trash icon-dark linkRemove" th:rowNumber="${status.count}"
+								th:href="@{'/cart/remove/' + ${product.id}}"></a>
+							</div>
+						</div>
+						
+						<div class="col-3"><!--  third column in the shopping cart view -->
+							<!--  image display -->
+							<img  th:src="@{${product.mainImagePath}}" class="img-fluid" />
+						</div>
+						<div class="col-6">
+							<div>
+								<a th:href="@{'/p/' + ${product.alias}}" target="_blank"
+									th:title="${product.name}">
+									<b>[[${product.shortName}]]</b>
+								</a>
+							</div>
+							<div th:replace="cart/quantity_control :: quantity_control(${item.quantity}, ${product.id})"></div>
+							
+							<div>
+								<span>X&nbsp;</span><!-- multiplication sign -->
+								<div th:replace="product/product_fragment :: product_price"></div>
+							</div>
+							
+							<div>
+								<span>=&nbsp;</span><!-- equal sign -->
+								<span th:if="${CURRENCY_SYMBOL_POSITION == 'Before price'}" th:remove="tag">
+									[[${CURRENCY_SYMBOL}]]
+								</span>	
+								<!-- creates id for subtotal -->					
+								<span th:id="'subtotal' + ${product.id}" class="h4 subtotal">
+									[[${#numbers.formatDecimal(item.subtotal, 1, THOUSANDS_POINT_TYPE, DECIMAL_DIGITS, DECIMAL_POINT_TYPE)}]]
+								</span>	
+								<span th:if="${CURRENCY_SYMBOL_POSITION == 'After price'}" th:remove="tag">
+									[[${CURRENCY_SYMBOL}]]
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="row m-1" th:id="'blankLine' + ${status.count}">&nbsp;</div>
+				</th:block>
+			</div>
+			
+			<!-- shows the estimated total if cartItems is not empty -->
+			<div class="col-sm-4" th:unless="${#lists.isEmpty(cartItems)}" id="sectionTotal">
+				<div>
+					<span class="h3"> Estimated Total</span>
+				</div>
+				<div class="mt-2">
+					<span th:if="${CURRENCY_SYMBOL_POSITION == 'Before price'}" th:remove="tag">
+						[[${CURRENCY_SYMBOL}]]
+					</span>
+					<span id="total" class="h2">
+						[[${#numbers.formatDecimal(estimatedTotal, 1, THOUSANDS_POINT_TYPE, DECIMAL_DIGITS, DECIMAL_POINT_TYPE)}]]
+					</span>
+					<span th:if="${CURRENCY_SYMBOL_POSITION == 'After price'}" th:remove="tag">
+						[[${CURRENCY_SYMBOL}]]
+					</span>
+				</div>
+				<div class="mt-2">
+					<!-- display the check out button if shipping rate is supported -->
+					<div th:if="${shippingSupported}">
+						<form th:action="@{/checkout}">
+							<button type="submit" class="btn btn-danger p-3 mt-2">Check Out</button>
+						</form>
+					</div>
+					
+					<!-- display the a text if shipping rate is not supported -->
+					<div th:unless="${shippingSupported}">
+						<div><span class="h5 text-warning"> No shipping available for your location </span> </div>
+					
+						<!-- display this link if primary address is used as default address -->
+						<div th:if="${usePrimaryAddressAsDefault}">
+							<!-- redirect=cart will redirect the page to the cart page after customer account has been updated. 
+								NB This is related to the input hidden field which has a name attribute "redirect" in account_form 
+							-->
+							<a th:href="@{/account_details(redirect=cart)}" class="h6">Update your address</a>
+						</div>
+						
+						<!-- display this link if primary address is not used as default address
+						and an address in the address book is used as default but not supported -->
+						<div th:unless="${usePrimaryAddressAsDefault}">
+						
+							<!-- redirect=cart will redirect the page to the cart page after shipping address  in the address book
+								has been updated or changed.
+								NB This is related to ${param.redirect} in addresses.html
+							-->
+							<a th:href="@{/address_book(redirect=cart)}" class="h6">Use another shipping address</a>
+						</div>
+					
+					
+					
+					</div>
+				</div>
+			</div>	
+			
+			
+			
+		</div>
+		
+			<!-- shows message if cartItems is empty -->
+<!-- 			<div class="text-center" th:if="${#lists.isEmpty(cartItems)}"> -->
+<!-- 					<h3> You have not chosen any product yet</h3> -->
+				
+<!-- 			</div> -->
+
+<!-- shows message if cartItems is empty modified
+	d-none means div block visibility is none
+-->
+			<div id="sectionEmptyCartMessage" th:class="'text-center' + ${#lists.isEmpty(cartItems) ? '' : ' d-none'}">
+					<h3> You have not chosen any product yet</h3>
+				
+			</div>
+		
+		<div th:replace="fragments :: modal_dialog"></div>
+		<div th:replace="navigation :: footer_menu"></div>
+	</div>
+<script type="text/javascript">
+	//context path of the application
+	//context path declaration using thymeleaf expression
+	contextPath = "[[@{/}]]";
+	
+	
+	//generates csrfHeaderName and csrfHeaderValue to prevent cross site force attack
+	var csrfHeaderName = "[[${_csrf.headerName}]]";
+	var csrfValue = "[[${_csrf.token}]]";
+
+	//thymeleaf expression used to assign the value of currency settings into js variables
+	//NB for formatting currency
+	decimalDigits = [[${DECIMAL_DIGITS}]];
+	decimalPointType = "[[${DECIMAL_POINT_TYPE}]]";
+	thousandsPointType = "[[${THOUSANDS_POINT_TYPE}]]";
+
+
+</script>
+
+<script type="text/javascript" th:src="@{/js/jquery.number.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/shopping_cart.js}"></script>
+<script type="text/javascript" th:src="@{/js/common_modal.js}"></script>
+<!-- <script type="text/javascript" th:src="@{/js/quantity_control.js}"></script> -->
+<!-- <script type="text/javascript" th:src="@{/js/add_to_cart.js}"></script> -->
+</body>
+</html>

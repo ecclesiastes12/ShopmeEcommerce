@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments :: page_head(${pageTitle }, 'none')"></head>
+<body>
+	<div class="container-fluid">
+		<div th:replace="navigation :: header_menu"></div>
+		<div th:replace="navigation :: search_nav"></div>
+		<div th:replace="breadcrumb :: content"></div>
+		
+		<div class="row">
+			<div class="col-sm">
+				<div>
+					<!-- display product main image. 
+					without index-->
+					<!-- <img id="bigImage" th:src="@{${product.mainImagePath}}" class="img-fluid"/> -->
+				
+					<img id="bigImage" th:src="@{${product.mainImagePath}}" class="img-fluid" index=0/>
+				
+				</div>
+				<div class="row justify-content-center">
+					<!-- without index -->
+					<!-- <div class="m-2 border border-secondary p-1">
+						<img class="image-thumbnail" th:src="@{${product.mainImagePath}}" height="50"
+							/>
+					</div> -->
+					
+					<!-- with index -->
+					<div class="m-2 border border-secondary p-1">
+						<img class="image-thumbnail" th:src="@{${product.mainImagePath}}" height="50"
+							index="0"/>
+					</div>
+					<!-- display product extra images 
+						
+					-->
+					<!-- <th:block th:each="extraImage: ${product.images}">
+						<div class="m-2 border border-secondary p-1">
+							<img class="image-thumbnail" th:src="@{${extraImage.imagePath}}" height="50"
+								>
+						</div>
+					</th:block> -->
+					
+					<!-- with index 
+						status used here is for counting the number of extra images to be displayed-->
+					<th:block th:each="extraImage, status : ${product.images}">
+						<div class="m-2 border border-secondary p-1">
+							<img class="image-thumbnail" th:src="@{${extraImage.imagePath}}" height="50"
+								th:index="${status.count}">
+						</div>
+					</th:block>
+					
+				</div>
+			</div>
+			<div class="col-sm">
+				<div>
+					<h2>[[${product.name}]]</h2>
+				</div>
+				<div>
+					<span>Brand : [[${product.brand.name}]]</span>
+				</div>
+				
+					<div >
+					<!-- product price 
+						Display the norm price if discount percentage is less than or equal to zero
+					-->
+					
+					List Price:
+						<!-- <span th:if="${product.discountPercent <= 0}">$ [[${product.price}]]</span> -->
+						
+						<span th:if="${product.discountPercent <= 0}"><div th:replace="fragments::price_fragment(${product.price})"></div></span>
+						
+						<!-- product and discount price 
+						Display the discount price if discount percentage is greater than zero
+					-->
+					
+							<!-- <del th:if="${product.discountPercent > 0}"><span>$ [[${product.price}]]</span></del> -->
+							<del th:if="${product.discountPercent > 0}"><span><div th:replace="fragments::price_fragment(${product.price})"></div></span></del>
+					</div>
+					
+					
+					<div th:if="${product.discountPercent > 0}">
+					Price:
+						<!-- <span style="font-size: larger; color: darkred;">$ [[${product.discountPrice}]]</span> -->
+						<span style="font-size: larger; color: darkred;"><div th:replace="fragments::price_fragment(${product.discountPrice})"></div></span>
+						
+						<!-- ([[${product.discountPercent}]] &percnt; off) -->
+						([[${#numbers.formatDecimal(product.discountPercent, 1, THOUSANDS_POINT_TYPE, DECIMAL_DIGITS, DECIMAL_POINT_TYPE)}]] &percnt; off)
+						
+					</div>
+					<div>&nbsp;</div>
+					<div th:utext="${product.shortDescription}"></div>
+			</div>
+			<div class="col-sm-2">
+				<div>
+					<span th:if="${product.inStock}" class="text-success"><b>In Stock</b></span>
+					<span th:unless="${product.inStock}" class="text-danger"><b>Out of Stock</b></span>
+				</div>
+<!-- 				<div class="mt-2"> -->
+<!-- 					<input type="text" size="5" value="1"> -->
+<!-- 				</div> -->
+<!-- 				<div th:replace="cart/quantity_control :: quantity_control"></div> -->
+
+				<!--  quantity_control parameterized-->
+<!-- 				<div th:replace="cart/quantity_control :: quantity_control(1, ${product.id})"></div> -->
+<!-- 				<div class="mt-3"> -->
+<!-- 					<input type="button" value="Add to Cart" class="btn btn-primary"> -->
+<!-- 				</div> -->
+
+				<th:block th:if="${product.inStock}"><!-- will only be available if there is a product in stock -->
+					<div th:replace="cart/quantity_control :: quantity_control(1, ${product.id})"></div>
+					<div class="mt-3">
+						<input type="button" value="Add to Cart" id="buttonAdd2Cart" class="btn btn-primary">
+					</div>
+				</th:block>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-12">
+				<div><hr/></div>
+				<div>
+					<h3>Product Description:</h3>
+				</div>
+				<div th:utext="${product.fullDescription}"></div>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-12">
+				<div><hr/></div>
+				<div>
+					<h3>Product Details:</h3>
+				</div>
+				<th:block th:each="detail : ${product.details}">
+					<div>
+						<b>[[${detail.name}]]</b> :
+						<span>[[${detail.value}]]</span>
+					</div>
+				</th:block>
+			</div>
+		</div>
+		
+		<div th:replace="product/images_carousel :: content"></div>
+		<div th:replace="fragments :: modal_dialog"></div>
+		<div th:replace="navigation :: footer_menu"></div>
+	</div>
+	
+<script type="text/javascript">
+
+//context path of the application
+//context path declaration using thymeleaf expression
+contextPath = "[[@{/}]]";
+productId = "[[${product.id}]]";
+
+//generates csrfHeaderName and csrfHeaderValue to prevent cross site force attack
+	var csrfHeaderName = "[[${_csrf.headerName}]]";
+	var csrfValue = "[[${_csrf.token}]]";
+
+/*
+// before updating with index
+
+$(document).ready(function() {
+	//id of the big image
+	bigImage = $("#bigImage");
+
+	$(".image-thumbnail").mouseover(function() {
+		currentImageSource = $(this).attr("src");
+		
+		//update the source attribute of the bigImage to the currentImageSource
+		//thus replace the bigImage with extra-image on mouse over for view purpose
+		bigImage.attr("src", currentImageSource);
+		bigImage.height(450);
+	});
+	
+	//on click event to show the modal
+	bigImage.on("click", function(){
+		$("#carouselModal").modal("show");
+	});
+});
+*/
+
+$(document).ready(function() {
+	//id of the big image
+	bigImage = $("#bigImage");
+
+	$(".image-thumbnail").mouseover(function() {
+		currentImageSource = $(this).attr("src");
+		
+		//update index of the current image
+		currentImageIndex = $(this).attr("index");
+		
+		//update the source attribute of the bigImage to the currentImageSource
+		//thus replace the bigImage with extra-image on mouse over for view purpose
+		bigImage.attr("src", currentImageSource);
+		
+		//upate bigImage source attribute
+		bigImage.attr("index", currentImageIndex);
+		
+		//fix image size
+		bigImage.height(450);
+	});
+	
+	//on click event to show the modal
+	bigImage.on("click", function(){
+		$("#carouselModal").modal("show");
+		
+		//update the carousel with current bigImage index
+		
+		imageIndex = parseInt(bigImage.attr("index"));
+		$("#carouselExampleIndicators").carousel(imageIndex );
+		
+	});
+});
+</script>
+<script type="text/javascript" th:src="@{/js/common_modal.js}"></script>
+<script type="text/javascript" th:src="@{/js/quantity_control.js}"></script>
+<script type="text/javascript" th:src="@{/js/add_to_cart.js}"></script>
+</body>
+</html>

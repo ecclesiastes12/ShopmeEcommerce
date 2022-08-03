@@ -1,0 +1,218 @@
+ <!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+      <!-- The header has been moved to fragments.html -->
+<!-- <head th:replace="fragments :: page_head('Home - Shopme Admin')"></head> -->
+<head th:replace="fragments :: page_head('Shopping Cart', 'none')"></head>
+<body>
+	<div class="container-fluid">
+		<div th:replace="navigation :: header_menu"></div>
+		
+		<div th:replace="navigation :: search_nav"></div>
+
+		<div class="text-center">
+			<h2>Checkout</h2>
+		</div>
+		
+		<div class="row m-1">
+			<div class="col-sm-8">
+				<div class="card">
+					<div class="card-header"><h5> Shipping Information</h5> </div>
+					<div class="card-body">
+						<p>
+							<b>Ship to:</b> &nbsp;[[${shippingAddress}]]
+							<a th:href="@{/address_book(redirect=checkout)}">[Ship to another address]</a>
+						</p>
+						
+						<p>
+							<b>Days to deliver: </b> [[${checkoutInfo.deliveryDays}]] day(s).
+						</p>
+						
+						<p>
+							<b>Expected deliver date: </b> [[${#dates.format(checkoutInfo.deliveryDate, 'E, dd MM yyyy')}]] 
+						</p>
+					</div>
+				</div>
+				
+				<div class="card mt-3 mb-3">
+					<div class="card-header"><h5> Payment Method</h5> </div>
+					<div class="card-body">
+						<!-- display cod support button if cod is supported -->
+						<div th:if="${checkoutInfo.codSupported}">
+							<form th:action="@{/place_order}" method="post">
+								<p>
+									<input type="radio" name="paymentMethod" id="radioCOD" value="COD"/> Cash on Delivery (COD)
+									&nbsp;
+									<!-- d-none hides the button -->
+									<button class="btn btn-primary d-none" type="submit" id="buttonSubmit">Place Order with COD</button>
+								</p>
+							</form>
+							<div id="paypal-button-container">
+							
+							</div>
+							
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col-sm-4">
+				<div class="card">
+					<div class="card-header"><h5> Order Summary</h5> </div>
+					<div class="card-body">
+						<div>
+						    <table>
+						    	<!-- iterate through each item in the cart -->
+								<th:block th:each="item : ${cartItems}">
+									<!-- local variable declaration in thymeleaf-->
+						    		<tr th:with="product = ${item.product}">
+						    			<td>[[${item.quantity}]] X &nbsp;&nbsp;</td>
+						    			<td width="70%">
+						    				<a th:href="@{'/p/' + ${product.alias}}" target="_blank">
+						    					[[${product.shortName}]]
+						    				</a>
+						    				</br>
+						    				<!-- shipping cost for each product -->
+						    				<small>Ship: <div th:replace="fragments :: format_currency(${item.shippingCost})"></div></small>
+						    			</td>
+						    			
+						    			<td>
+						    				<div th:replace="fragments :: format_currency(${item.subtotal})"></div>
+						    			</td>
+						    		</tr>
+								</th:block>
+								<tr><td colspan="3"><hr></hr> </td></tr>
+							</table>
+						</div>
+						
+						<div class="row mt-2">
+							<div class="col">Product Total:</div>
+							<div class="col"><div th:replace="fragments :: format_currency(${checkoutInfo.productTotal})"></div></div>
+						</div>
+						
+						<div class="row mt-2">
+							<div class="col">Shipping Total:</div>
+							<div class="col"><div th:replace="fragments :: format_currency(${checkoutInfo.shippingCostTotal})"></div></div>
+						</div>
+						
+						<div class="row mt-2">
+							<div class="col">Payment Total:</div>
+							<div class="col"><b><div th:replace="fragments :: format_currency(${checkoutInfo.paymentTotal})"></b></div></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		
+		
+		<div th:replace="navigation :: footer_menu"></div>
+	</div>
+	
+<!-- paypal js library(sdk) takes two parameters
+	parameter 1 is paypal client id provided in the settings
+	parameter 2 is the currency code which is also provided in the settings
+ -->
+ 	
+<script th:src="@{https://www.paypal.com/sdk/js(client-id=${paypalClientId}, currency=${currencyCode})}"></script>
+<script type="text/javascript">
+	//context path of the application
+	//context path declaration using thymeleaf expression
+	contextPath = "[[@{/}]]";
+	
+	
+	//generates csrfHeaderName and csrfHeaderValue to prevent cross site force attack
+	var csrfHeaderName = "[[${_csrf.headerName}]]";
+	var csrfValue = "[[${_csrf.token}]]";
+
+	//code to make COD button visible when radio button is checked
+	$(document).ready(function() {
+		$("#radioCOD").on("click", function(){
+			//removes the css class d-none to make the button visible
+			$("#buttonSubmit").removeClass("d-none");
+		});
+	});
+	
+	//the code below loads the paypal button and it won't work without paypal sdk libraby
+	/* paypal.Buttons({
+		
+	}).render("#paypal-button-container"); */
+	
+	//code to load paypal button
+	paypal.Buttons({
+		enableStandardCardFields: true,
+		
+		//functio to setup transaction
+		createOrder: function(data, actions){
+			
+			return actions.order.create({
+		
+				intent: 'CAPTURE', //make payment immediately
+				payer: { //customer or buyer information
+					//NB customer here is the customer object created in showCheckoutPage method in checkout controller
+					name: {
+					given_name: "[[${customer.firstName}]]",
+					surname: "[[${customer.lastName}]]"
+					},
+				
+					//get customer address information from the customer object
+					address: {
+						address_line_1: "[[${customer.addressLine1}]]",
+						address_line_2: "[[${customer.addressLine2}]]",
+						admin_area_1: "[[${customer.state}]]",
+						admin_area_2: "[[${customer.city}]]",
+						postal_code: "[[${customer.postalCode}]]",
+						country_code: "[[${customer.country.code}]]"
+					},
+					
+					email_address: "[[${customer.email}]]",
+					
+					phone: {
+						phone_type: "MOBILE",
+						phone_number: {
+							national_number: "[[${customer.phoneNumber}]]"
+						}
+					}
+				},
+				
+				//the amount of money to be payed by the customer
+				purchase_units: [{
+					amount: {
+						value: "[[${checkoutInfo.paymentTotal4PayPal}]]",
+						currency_code: "[[${currencyCode}]]"
+					}
+				}],
+				//the code below will not display the address on debit or credit card
+				application_context: {
+					shipping_preference: "NO_SHIPPING"
+				}
+			});
+		},
+		//callback functions
+		//function to approve transaction after the customer approve payment   
+		onApprove: function(data, actions) {
+			
+			return actions.order.capture().then(function(details){
+				console.log(details); //log the customer details into the console for testing purpose
+				orderId = details.id;
+				totalAmout = details.purchase_units[0].amount.value;
+				
+				alert("Transaction completed. Order ID: " + orderId + ". Amount paid: " + totalAmount);
+			});
+		},
+		
+		//function to cancel transaction in case customer cancel payment
+		onCancel: function(data){
+			alert("Payment cancelled by the buyer");
+		},
+		
+		//function for error in case of loading paypal sdk library
+		onError: function(err){
+			alert('Something wrong happened');
+		}
+	}).render("#paypal-button-container");
+	
+</script>
+
+	
+</body>
+</html>

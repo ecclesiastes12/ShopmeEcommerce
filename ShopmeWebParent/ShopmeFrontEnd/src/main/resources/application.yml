@@ -1,0 +1,48 @@
+server:
+  port: 80
+  servlet:
+    context-path: /Shopme
+    
+#database connection
+spring:
+  datasource:
+    password: shopme
+    url: jdbc:mysql://localhost:3306/shopmedb
+    username: root
+    
+  #jpa/hibernate properties
+  #creates the database
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        
+        #format the sql statement for eligibility in the console 
+        format_sql: true
+    
+    #shows sql statements in the console
+    show-sql: true
+    
+    #enable hot swapping
+  thymeleaf:
+    cache: false
+  
+  #oauth2 configuration for google
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 527867516593-k5rcv7seo3ej9epm63p4hn0qi22jhcf2.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+            - email
+            - profile
+          facebook:
+            client-id: 809673163322572
+            client-secret: 96aeeb1567fe16b52bcd8764d0eb874e
+            scope:
+            - email
+            - public_profile

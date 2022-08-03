@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments :: page_head('Customers - Shopme Admin', 'none')"></head>
+
+<body>
+	<div class="container-fluid">
+		<div th:replace="navigation :: menu">
+		</div>
+		<div>
+			<h2>Manage Customers</h2>
+<!-- 			<th:block sec:authorize="hasAnyAuthority('Admin','Editor')">-->
+<!-- 				<a th:href="@{/products/new}" class="fas fa-folder-plus fa-2x icon-dark mr-2"></a> -->
+
+				<a th:href="@{/customers/export/csv}" class="fas fa-file-csv fa-2x icon-dark mr-2"></a>
+			<!-- </th:block>-->
+		</div>
+
+		<div>
+<!-- 			<form th:action="@{/customers/page/1}" class="form-inline m-3" id="searchForm"> -->
+<!-- 					for search url. when the search button is click the sortField and sortDir value will -->
+<!-- 				be sent to the url --> 
+<!-- 					<input type="hidden" name="sortField" th:value="${sortField}" /> -->
+<!-- 					<input type="hidden" name="sortDir" th:value="${sortDir}" /> -->
+	
+	
+<!-- 					Filter: &nbsp; -->
+<!-- 					the purpose of th:value="${keyword}" here is to keep the search word the the text field after -->
+<!-- 					the search button is click --> 
+<!-- 					<input type="search" name="keyword" th:value="${keyword}" class="form-control" required /> -->
+	
+<!-- 					<div class="search-form-margin"> -->
+<!-- 						&nbsp; -->
+	
+<!-- 						<button type="submit" class="btn btn-primary"> -->
+<!-- 							<i class="fas fa-search  "></i> -->
+<!-- 						</button> -->
+<!-- 						&nbsp; -->
+<!-- 						<button type="button" class="btn btn-secondary" onclick="clearFilter()"> -->
+<!-- 							<i class="fas fa-eraser  "></i> -->
+<!-- 						</button> -->
+<!-- 					</div> -->
+<!-- 				</form> -->
+		
+<!-- 			<div th:if="${message != null}" class="alert alert-success text-center"> -->
+<!-- 				[[${message}]] -->
+<!-- 			</div>	 -->
+
+	<div th:replace="fragments :: search_form_and_message"></div>
+		</div>
+
+		<div class="full-details">
+			<table class="table table-bordered table-striped table-hover table-responsive-xl-sm">
+				<thead class="thead-dark">
+					<tr>
+						<!-- <th> -->
+							<!-- <th>Customer ID</th> -->
+							<!-- <th th:replace="fragments :: column_link('/customers', 'id', 'ID', 'tag')" /> -->
+							
+							<!-- '/customers' as a parameter in column_link is removed because it's modified fragments.html -->
+							<!-- <th th:replace="fragments :: column_link('id', 'ID', 'tag')" /> -->
+						<!-- </th> -->
+						<th th:replace="fragments :: column_link('id', 'ID', 'none')" />
+						
+						<!-- <th>Customer Name</th> -->
+						<th th:replace="fragments :: column_link('firstName', 'First Name', 'none')" />
+						
+						<!-- <th>
+							<th th:replace="fragments :: column_link('lastName', 'Last Name', 'tag')" />
+							
+						</th> -->
+						<th th:replace="fragments :: column_link('lastName', 'Last Name', 'none')" />
+						<th th:class="hideable-column">
+							<th th:replace="fragments :: column_link('email', 'E-mail', 'tag')" />
+						</th>
+						<th th:class="hideable-column">
+							<th th:replace="fragments :: column_link('city', 'City', 'tag')" />
+						</th>
+						<th th:class="hideable-column">
+							<th th:replace="fragments :: column_link('state', 'State', 'tag')" />
+						</th>
+						<!-- <th>
+							<th th:replace="fragments :: column_link('country', 'Country', 'tag')" />
+						</th> -->
+						<th th:replace="fragments :: column_link('country', 'Country', 'none')" />
+
+						<!-- <th:block sec:authorize="hasAnyAuthority('Admin', 'Editor')">
+							<th>Enabled</th>
+						</th:block> -->
+						<th th:replace="fragments :: column_link('enabled', 'Enabled', 'none')" />
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="customer : ${listCustomers}">
+						<td id="customerId">[[${customer.id}]]</td>
+						<td id="customerFirstName">[[${customer.firstName}]]</td>
+						<td id="customerLastName">[[${customer.lastName}]]</td>
+						<td th:class="hideable-column">[[${customer.email}]]</td>
+						<td th:class="hideable-column">[[${customer.city}]]</td>
+						<td th:class="hideable-column">[[${customer.state}]]</td>
+						<td>[[${customer.country.name}]]</td>
+						<!-- <th:block sec:authorize="hasAnyAuthority('Admin','Editor')">
+							<td>
+								<div
+									th:replace="fragments :: status(${customer.enabled}, 'customer', '/customers/' + ${customer.id})">
+								</div>
+							</td>
+						</th:block> -->
+						<td>
+							<div th:replace="fragments :: status(${customer.enabled}, 'customer', '/customers/' + ${customer.id})" />
+						</td>
+						<td>
+							<!-- Action buttons start-->
+							<a class="fas fa-file-alt fa-2x icon-green link-detail"
+								th:href="@{'/customers/detail/' + ${customer.id}}"
+								title="View details of this customer"></a>
+							
+							<!-- <th:block sec:authorize="hasAnyAuthority('Admin','Editor','Salesperson')">
+								&nbsp;
+								<div th:replace="fragments :: edit('customer', '/customers/edit/' + ${customer.id})"></div>
+							</th:block> -->
+							&nbsp; 
+							<div th:replace="fragments :: edit('customer', '/customers/edit/' + ${customer.id})" />
+
+							<!-- <th:block sec:authorize="hasAnyAuthority('Admin','Editor')">
+							&nbsp;
+								<div th:replace="fragments :: delete('customer', ${customer.id}, '/customers/delete/' + ${customer.id},true)">
+								</div>
+								</th:block> -->
+								<!-- Action buttons end -->
+
+								&nbsp; 
+						<div th:replace="fragments :: delete('customer', ${customer.id}, '/customers/delete/' + ${customer.id}, true)" />	
+						</td>
+					</tr>
+
+				</tbody>
+			</table>
+		</div>
+
+		<div class="less-details">
+			<div th:each="customer : ${listCustomers}" class="row m-1">
+				<div class="col-4">
+					<div  class="font-weight-bold">[[${customer.fullName}]]</div>
+
+				</div>
+				<div class="col-8">
+					<div class="mb-1">
+						<span th:title="${customer.country.name}">[[${customer.country.name}]]</span>
+					</div>
+					<div>
+						<div th:replace="fragments :: status(${customer.enabled}, 'customer', '/customers/' + ${customer.id})"></div>
+						&nbsp;
+						
+						<a class="fas fa-file-alt fa-2x icon-green link-detail" th:href="@{'/customers/detail/' + ${customer.id}}"
+							title="View details of this product"></a>
+						&nbsp;
+						<div th:replace="fragments :: edit('customer', '/customers/edit/' + ${customer.id})"></div>
+						&nbsp;
+						<div
+							th:replace="fragments :: delete('customer', ${customer.id}, '/customers/delete/' + ${customer.id},true)">
+						</div>
+					</div>
+
+				</div>
+				<div>&nbsp;</div>
+			</div>
+		</div>
+
+
+
+
+		<!-- 		</div>
+			
+			<div th:replace="page_pagination :: pagination('/users','users')"></div> -->
+
+		<!-- 		<div class="modal fade text-center" id="confirmModal"> -->
+		<!-- 		<div class="modal-dialog"> -->
+		<!-- 			<div class="modal-content"> -->
+		<!-- 				<div class="modal-header"> -->
+		<!-- 					<h4 class="modal-title" >Delete Confirmation</h4> -->
+		<!-- 					<button type="button" class="close" data-dismiss="modal">&times;</button> -->
+		<!-- 				</div> -->
+		<!-- 				<div class="modal-body"> -->
+		<!-- 					<span id="confirmText"></span> -->
+		<!-- 				</div> -->
+		<!-- 				<div class="modal-footer"> -->
+		<!-- 					<a class="btn btn-success" href="" id="yesButton">Yes</a> -->
+		<!-- 					<button type="button" class="btn btn-danger" data-dismiss="modal">No</button> -->
+		<!-- 				</div> -->
+		<!-- 			</div> -->
+		<!-- 		</div> -->
+		<!-- 	</div> -->
+
+
+		<div th:replace="modal_fragments :: confirm_modal"></div>
+
+		<!-- modal dialog for showing customer details -->
+		<div class="modal fade" id="detailModal">
+			<!-- modal-xl indicate extra-large modal dialog -->
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+
+				</div>
+			</div>
+		</div>
+		
+	
+
+		<!-- 	
+		display page number if the total number of pages(totalItems) is greater than zero
+		<div class="text-center m-1" th:if="${totalItems > 0}">
+			<span>Showing users # [[${startCount}]] to [[${endCount}]] of [[${totalItems}]] </span>
+		</div>
+		<div class="text-center m-1" th:unless="${totalItems > 0}">
+			<span>No users found</span>
+		</div>
+		 -->
+
+		<!-- <div>
+			<nav th:if="${totalPages > 1}"> shows the pagination if the number of pages is more than 1
+			  <ul class="pagination justify-content-center flex-wrap">
+			  disable the first page button if the number is less than or equal to 1
+			    <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
+			    first page view 
+ 			    	sorting for first page ?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} 
+			    
+			    	<a class="page-link" th:href="@{'/brands/page/1?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}">First</a>
+			   		<a th:replace="fragments :: page_link(1,'First')"></a>
+			    </li>
+			    disable the previous page button if the number is less than or equal to 1 
+			    <li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}"> 
+			     previous page view 
+			     	sorting for previous page '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}
+			     
+			    	<a class="page-link" th:href="@{'/brands/page/' + ${currentPage - 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}">Previous</a>
+			    
+			    	<a th:replace="fragments :: page_link(${currentPage - 1},'Previous')"></a>
+			    </li>
+			   
+			    active page based on the current page view or number
+			    <li th:class="${currentPage != i ? 'page-item' : 'page-item active'}" 
+			    	th:each="i : ${#numbers.sequence(1,totalPages)}">
+			    	 page numbers from 1 to the last page
+			    	<a class="page-link" th:href="@{'/brands/page/' + ${i} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}">[[${i}]]</a>
+			    	<a th:replace="fragments :: page_link(${i}, ${i})"></a>
+			    </li>
+			   
+			    disable the next page button if the current page view is the last page
+			    <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}" >
+			    next page view
+			   		<a class="page-link" th:href="@{'/brands/page/' + ${currentPage + 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}">Next</a>
+			    	<a th:replace="fragments :: page_link(${currentPage + 1}, 'Next')"></a>
+			    </li>
+			    disable the last page button if the current page view is the last page
+			    <li th:class="${currentPage < totalPages ? 'page-item' : 'page-item disabled'}">
+			   		last page view
+			   		<a class="page-link" th:href="@{'/brands/page/' + ${totalPages} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}">Last</a>
+			    	<a th:replace="fragments :: page_link(${totalPages}, 'Last')"></a>
+			    </li>
+			  </ul>
+			</nav>
+		</div>
+		 -->
+
+	<div th:replace="page_pagination :: pagination('customers')"></div> 
+
+		<div th:replace="fragments :: footer"></div>
+
+	</div>
+	<script th:src="@{/js/common_list.js}"></script>
+	<script type="text/javascript">
+		moduleURL = "[[@{/customers}]]";
+
+		$(document).ready(function () {
+			$(".link-delete").on("click", function (event) {
+				event.preventDefault();
+				customerFullName = $("#customerFirstName").text() +" "+ $("#customerLastName").text() + $("#customerId").val();
+
+				showDeleteConfirmModal2($(this), 'customer', customerFullName);
+			});
+
+			$(".link-detail").on("click", function (e) {
+				event.preventDefault();
+				linkDetailURL = $(this).attr("href");
+
+				$("#detailModal") //selects the modal dialog
+					.modal("show") //show the modal
+					.find(".modal-content") //finds the element modal-content
+					.load(linkDetailURL); //load the url for the selected customer
+			});
+
+
+		});
+	</script>
+	
+</body>
+
+</html>

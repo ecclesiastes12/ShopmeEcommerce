@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- fragment for page header -->
+<!-- <head th:fragment="page_head(title)"> -->
+
+<!-- page_head fragment modified with a second parameter -->
+<head th:fragment="page_head(title,remove)" th:remove="${remove}">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!-- for mobile phones responsiveness -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+<!--  append site name from settings -->
+<title>[[${title}]] - [[${SITE_NAME}]]</title>
+
+<!-- <link rel="stylesheet" type="text/css" th:href="@{/pagination.css}"> -->
+<link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/fontawesome/all.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/style.css}" />
+<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/common.js}"></script>
+<!-- <script type="text/javascript" th:src="@{/js/common_customer.js}"></script> -->
+
+</head>
+<body>
+	
+	<a th:fragment="page_link(moduleURL,pageNum,label)"
+		class="page-link"
+		th:href="@{${moduleURL} + '/page/' + ${pageNum} + '?sortField=' + 
+		${sortField} + '&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' 
+		+ keyword : ''}}">[[${label}]]
+</a>
+	
+	#####################
+		PRICE AND CURRENCY SYMBOL
+	#####################
+	<div th:fragment="price_fragment(productPrice)" th:remove="tag">
+	
+		<!-- #numbers.formatDecimal(...) is for formatting the decimal-->
+			<span th:if="${CURRENCY_SYMBOL_POSITION == 'Before price'}" th:remove="tag">[[${CURRENCY_SYMBOL}]]</span>[[${#numbers.formatDecimal(productPrice, 1, THOUSANDS_POINT_TYPE, DECIMAL_DIGITS, DECIMAL_POINT_TYPE)}]]<span th:if="${CURRENCY_SYMBOL_POSITION == 'After price'}" th:remove="tag">[[${CURRENCY_SYMBOL}]]</span>
+	</div>
+
+	#########################
+	MODAL DIALOG FOR EMAIL ERROR MESSAGE
+	#########################
+	
+	<div th:fragment="modal_dialog" class="modal fade text-center" id="modalDialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title" id="modalTitle">Warning</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					<span id="modalBody"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	#########################
+	MODAL DIALOG FOR DELETING ADDRESS
+	#########################
+	<div th:fragment="confirm_modal" class="modal fade text-center"
+		id="confirmModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Delete Confirmation</h4>
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<span id="confirmText"></span>
+				</div>
+				<div class="modal-footer">
+
+					<a  class="btn btn-success" href="" id="yesButton">
+						Yes</a>
+					<button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	##########################
+	 FORMAT CURRENCY
+	##########################
+
+	<div th:fragment="format_currency(amount)" th:remove="tag">
+		<span th:if="${CURRENCY_SYMBOL_POSITION == 'Before price'}" th:remove="tag">[[${CURRENCY_SYMBOL}]]</span>[[${#numbers.formatDecimal(amount, 1, THOUSANDS_POINT_TYPE, DECIMAL_DIGITS, DECIMAL_POINT_TYPE)}]]<span th:if="${CURRENCY_SYMBOL_POSITION == 'After price'}" th:remove="tag">[[${CURRENCY_SYMBOL}]]</span>
+	</div>
+</body>
+</html>

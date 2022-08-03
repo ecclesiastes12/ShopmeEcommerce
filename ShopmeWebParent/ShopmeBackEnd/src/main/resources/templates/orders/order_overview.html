@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<div th:fragment="content" th:remove="tag">
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Order ID:</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" th:field="*{order.id}" readonly="readonly" />
+		</div>
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Customer:</label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" th:field="*{order.fullName}" readonly="readonly" />
+		</div>
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Product Cost:</label>
+		<div class="col-sm-10">
+			<!-- <input type="text" class="form-control" th:field="*{order.productCost}" readonly="readonly" /> -->
+			<div th:replace="orders/currency_and_time :: currency_input(${order.productCost})"></div>
+		</div>
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Subtotal:</label>
+		<div class="col-sm-10">
+<!-- 			<input type="text" class="form-control" th:field="*{order.subtotal}" readonly="readonly" /> -->
+			<div th:replace="orders/currency_and_time :: currency_input(${order.subtotal})"></div>
+		</div>
+	</div>
+	
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Shipping Cost:</label>
+		<div class="col-sm-10">
+			<div th:replace="orders/currency_and_time :: currency_input(${order.shippingCost})"></div>
+		</div>
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Tax:</label>
+		<div class="col-sm-10">
+<!-- 			<input type="text" class="form-control" th:field="*{order.tax}" readonly="readonly" /> -->
+			<div th:replace="orders/currency_and_time :: currency_input(${order.tax})"></div>
+		</div>
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Total:</label>
+		<div class="col-sm-10">
+<!-- 			<input type="text" class="form-control" th:field="*{order.total}" readonly="readonly" /> -->
+			<div th:replace="orders/currency_and_time :: currency_input(${order.total})"></div>
+			<span>Total = Subtotal + Shipping Cost + Tax</span>
+		</div>
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Payment Method:</label>
+		<div class="col-sm-10">
+			
+			<span>[[${order.paymentMethod}]]</span>
+		</div>
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Status:</label>
+		<div class="col-sm-10">
+			
+			<span>[[${order.status}]]</span>
+		</div>
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label">Order Date:</label>
+		<div class="col-sm-10">
+<!-- 			<span>[[${order.orderTime}]]</span> -->
+			<div th:replace="orders/currency_and_time :: format_time(${order.orderTime})"></div>
+		</div>
+	</div>
+	
+</div>
+</body>
+</html>

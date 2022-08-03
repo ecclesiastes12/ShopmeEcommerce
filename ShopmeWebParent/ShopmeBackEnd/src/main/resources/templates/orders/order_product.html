@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<div th:fragment="content" th:remove="tag">
+	
+
+		<!-- for order details images. NB orderDetails is variable of type Set in order.java-->
+		<th:block th:each="detail, status : ${order.orderDetails}">
+		 <div class="row border rounded p-1" th:with="product = ${detail.product}" >
+		 	<div class="col-sm-1">
+					<div class="div-count">[[${status.count}]]</div>					
+				</div>
+				<div class="col-sm-3"><img th:src="@{${product.mainImagePath}}" class="img-fluid" /></div>
+		 	<div class="col-sm-8">
+					<div class="text-wrap">
+						<b>[[${product.name}]]</b>
+					</div>
+					<div>
+						Product Cost: <div th:replace="orders/currency_and_time :: format_currency(${detail.productCost})" />
+					</div>
+					<div>
+						Subtotal: [[${detail.quantity}]] X
+						<div th:replace="orders/currency_and_time :: format_currency(${detail.unitPrice})" />
+						 = 
+						 <div th:replace="orders/currency_and_time :: format_currency(${detail.subtotal})" />
+					</div>
+					<div>
+						Shipping Cost: <div th:replace="orders/currency_and_time :: format_currency(${detail.shippingCost})" />
+					</div>					
+				</div>
+		 </div>
+			
+		</th:block>
+	
+</div>
+</body>
+</html>
